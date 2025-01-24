@@ -86,6 +86,13 @@ body {
   text-transform: uppercase;
 }
 
+#app {
+  cursor: none; /* El sistema no mostrará el cursor por defecto */
+  touch-action: none; /* Ayuda a que en pantallas táctiles también funcione bien */
+}
+
+
+
 #app a {
   margin-top: 10px;
   display: inline-block;
