@@ -32,7 +32,7 @@ const colors = [
 ];
 
 // Mensaje que se va a mostrar con las letras
-const letters = "0123456789"; 
+const letters = "0⨊1∓2∰3∐4ℝ5∌6⊉7∰8♾️9⦝"; 
 let letterIndex = 0; // Índice para recorrer las letras
 
 // Retorna la siguiente letra del mensaje "I LOVE YOU"
@@ -72,8 +72,8 @@ function createFirework(x, y) {
 
 // Crea la explosión que contiene letras y chispas
 function createBurst(x, y) {
-  const numLetters = 15;   // Número de letras en la explosión
-  const numSparkles = 50;  // Número de chispas en la explosión
+  const numLetters = 16;   // Número de letras en la explosión
+  const numSparkles = 55;  // Número de chispas en la explosión
 
   // Crear letras
   for (let i = 0; i < numLetters; i++) {
