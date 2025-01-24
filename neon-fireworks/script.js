@@ -18,19 +18,22 @@ neonCursor({
 
 /* 2) --- LÓGICA DE FUEGOS ARTIFICIALES --- */
 
-// Colores vibrantes para las partículas
+// Colores vibrantes para las partículas (ajustados para un efecto neón más intenso)
 const colors = [
   "#ff6f91",
   "#ff9671",
   "#ffc75f",
   "#f9f871",
   "#ff4c4c",
-  "#ffcc00"
+  "#ffcc00",
+  "#00f5d4",
+  "#8e2de2",
+  "#4a00e0"
 ];
 
 // Mensaje que se va a mostrar con las letras
 const letters = "I LOVE YOU"; 
-let letterIndex = 0; // Indice para recorrer las letras
+let letterIndex = 0; // Índice para recorrer las letras
 
 // Retorna la siguiente letra del mensaje "I LOVE YOU"
 function getRandomLetter() {

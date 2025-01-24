@@ -1,3 +1,6 @@
+/* Importamos una fuente de Google Fonts para un mejor estilo de neón */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
 /* Reinicio básico de márgenes y tamaños para que todo ocupe el 100% de la pantalla */
 html, body, #app {
   margin: 0;
@@ -41,15 +44,23 @@ body {
     0 0 40px rgba(255, 255, 255, 0.4);
 }
 
-/* Estilos para las letras que aparecen en la explosión */
+/* Estilos para las letras que aparecen en la explosión con efecto de neón */
 .particule {
   position: absolute;
   font-size: 2rem;
-  font-family: "Cursive", serif;
+  font-family: 'Orbitron', sans-serif; /* Fuente de neón */
   font-weight: bold;
-  color: white;
+  color: #fff;
   transform: scale(0);
   opacity: 0;
+  text-shadow: 
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 20px #ff00de,
+    0 0 30px #ff00de,
+    0 0 40px #ff00de,
+    0 0 50px #ff00de,
+    0 0 60px #ff00de;
 }
 
 /* Estilos para las chispas */
