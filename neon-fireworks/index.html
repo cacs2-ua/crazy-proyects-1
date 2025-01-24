@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neon Fireworks</title>
-  
-  <!-- Enlace a la hoja de estilos integrada -->
-  <link rel="stylesheet" href="style.css">
-  
-  <!-- Anime.js para los fuegos artificiales -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" defer></script>
-  
-  <!-- Script principal como módulo para integrar ambos proyectos -->
-  <script type="module" src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Neon Cursor + Dramatic Fireworks</title>
+  <!-- Importamos el CSS -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Importamos la librería anime.js para la animación de los fuegos artificiales -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 </head>
 <body>
-  <!-- Contenedor principal para el cursor de neón -->
+  <!-- Contenedor principal -->
   <div id="app">
-    <!-- Instrucciones para los fuegos artificiales -->
-    <div class="instructions">¡Haz clic y disfruta de los fuegos artificiales!</div>
+    <!-- Instrucciones para el usuario -->
+    <div class="instructions">Click and Enjoy the Firework!</div>
   </div>
+  
+  <!-- Importamos la lógica unificada en script.js usando type="module" 
+       porque el cursor neon requiere importaciones de ES Modules -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>

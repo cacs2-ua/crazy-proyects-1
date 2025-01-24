@@ -1,7 +1,7 @@
-// Importar el cursor de neón desde Three.js Toys
+// Importamos la función neonCursor desde la CDN de threejs-toys
 import { neonCursor } from 'https://unpkg.com/threejs-toys@0.0.8/build/threejs-toys.module.cdn.min.js';
 
-// Inicializar el cursor de neón
+/* 1) --- CONFIGURACIÓN Y ACTIVACIÓN DEL CURSOR NEÓN --- */
 neonCursor({
   el: document.getElementById('app'),
   shaderPoints: 16,
@@ -16,9 +16,9 @@ neonCursor({
   sleepTimeCoefY: 0.0025
 });
 
-// Funcionalidad de los fuegos artificiales de letras
+/* 2) --- LÓGICA DE FUEGOS ARTIFICIALES --- */
 
-// Definir colores vibrantes
+// Colores vibrantes para las partículas
 const colors = [
   "#ff6f91",
   "#ff9671",
@@ -28,64 +28,70 @@ const colors = [
   "#ffcc00"
 ];
 
-// Mensaje a mostrar
-const letters = "¡FELIZ AÑO!"; // Puedes personalizar el mensaje
-let letterIndex = 0; // Índice para recorrer las letras
+// Mensaje que se va a mostrar con las letras
+const letters = "I LOVE YOU"; 
+let letterIndex = 0; // Indice para recorrer las letras
 
-// Obtener la siguiente letra del mensaje
+// Retorna la siguiente letra del mensaje "I LOVE YOU"
 function getRandomLetter() {
-  const letter = letters.charAt(letterIndex); // Obtener la letra actual
-  letterIndex = (letterIndex + 1) % letters.length; // Avanzar al siguiente, reiniciar al final
+  const letter = letters.charAt(letterIndex);
+  letterIndex = (letterIndex + 1) % letters.length;
   return letter;
 }
 
-// Crear un fuego artificial en la ubicación del clic
+// Crea un fuego artificial en la posición (x, y) del click
 function createFirework(x, y) {
+  // Altura de lanzamiento al azar
   const launchHeight = Math.random() * (window.innerHeight / 4) + window.innerHeight / 4;
+  
+  // Creación del proyectil que sube antes de explotar
   const projectile = document.createElement("div");
   projectile.classList.add("projectile");
   document.body.appendChild(projectile);
+
+  // Posicionamos el proyectil en el lugar del click
   projectile.style.left = `${x}px`;
   projectile.style.top = `${y}px`;
 
+  // Animación de subida
   anime({
     targets: projectile,
     translateY: -launchHeight,
     duration: 1200,
     easing: "easeOutQuad",
     complete: () => {
+      // Una vez que la animación termina, removemos el proyectil y creamos la explosión
       projectile.remove();
       createBurst(x, y - launchHeight);
     }
   });
 }
 
-// Crear una explosión de partículas
+// Crea la explosión que contiene letras y chispas
 function createBurst(x, y) {
-  const numLetters = 15; // Número de letras en la explosión
-  const numSparkles = 50; // Número de destellos adicionales
+  const numLetters = 15;   // Número de letras en la explosión
+  const numSparkles = 50;  // Número de chispas en la explosión
 
   // Crear letras
   for (let i = 0; i < numLetters; i++) {
     createParticle(x, y, false);
   }
 
-  // Crear destellos
+  // Crear chispas
   for (let i = 0; i < numSparkles; i++) {
     createParticle(x, y, true);
   }
 }
 
-// Crear una única partícula (letra o destello)
+// Crea una partícula individual (puede ser letra o chispa)
 function createParticle(x, y, isSparkle) {
   const el = document.createElement("div");
   el.classList.add(isSparkle ? "sparkle" : "particule");
   
-  // Ocultar las instrucciones al hacer el primer clic
-  if (document.querySelector('.instructions').style.display !== 'none') {
-    document.querySelector('.instructions').style.display = 'none';
-  }
+  // Al primer click, ocultamos las instrucciones
+  document.querySelector('.instructions').style.display = 'none';
 
+  // Si no es chispa, es una letra
   if (!isSparkle) {
     el.textContent = getRandomLetter();
     el.style.color = colors[Math.floor(Math.random() * colors.length)];
@@ -93,26 +99,30 @@ function createParticle(x, y, isSparkle) {
     el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
   }
 
+  // Posicionamos la partícula en el lugar de la explosión
   el.style.left = `${x}px`;
   el.style.top = `${y}px`;
   document.body.appendChild(el);
 
+  // Lanzamos la animación de la partícula
   animateParticle(el, isSparkle);
 }
 
-// Animar una partícula
+// Anima la partícula para que "explote" y desaparezca
 function animateParticle(el, isSparkle) {
-  const angle = Math.random() * Math.PI * 2; // Dirección aleatoria
-  const distance = anime.random(100, 200); // Distancia aleatoria para dispersión
-  const duration = anime.random(1200, 2000); // Duración aleatoria
-  const fallDistance = anime.random(20, 80); // Distancia de caída para efecto de gravedad
-  const scale = isSparkle ? Math.random() * 0.5 + 0.5 : Math.random() * 1 + 0.5;
+  const angle = Math.random() * Math.PI * 2;    // Dirección aleatoria
+  const distance = anime.random(100, 200);      // Distancia a la que se expande
+  const duration = anime.random(1200, 2000);    // Tiempo de duración de la animación
+  const fallDistance = anime.random(20, 80);    // Caída extra para simular gravedad
+  const scale = isSparkle
+    ? Math.random() * 0.5 + 0.5
+    : Math.random() * 1 + 0.5;
 
   anime.timeline({
     targets: el,
     easing: "easeOutCubic",
     duration: duration,
-    complete: () => el.remove() // Remover el elemento tras la animación
+    complete: () => el.remove() // Al finalizar la animación, se elimina la partícula
   })
   .add({
     translateX: Math.cos(angle) * distance,
@@ -121,19 +131,19 @@ function animateParticle(el, isSparkle) {
     opacity: [1, 0.9]
   })
   .add({
-    translateY: `+=${fallDistance}px`, // Efecto de caída
+    translateY: `+=${fallDistance}px`, // Movemos un poco más abajo para simular gravedad
     opacity: [0.9, 0],
     easing: "easeInCubic",
     duration: duration / 2
   });
 }
 
-// Añadir listener para el evento de clic
+// Listener para crear los fuegos artificiales cada vez que se hace click
 document.addEventListener("click", (e) => {
   createFirework(e.clientX, e.clientY);
 });
 
-// Disparar un fuego artificial al cargar la página
+// Dispara automáticamente un fuego artificial al cargar la página, en el centro
 window.onload = function () {
   const centerX = window.innerWidth / 2;
   const centerY = window.innerHeight / 2;

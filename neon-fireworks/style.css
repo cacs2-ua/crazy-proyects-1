@@ -1,103 +1,90 @@
-/* Reset de márgenes y tamaños para body, html y #app */
-body, html, #app {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-  }
-  
-  /* Estilos del body para los fuegos artificiales */
-  body {
-    background: radial-gradient(circle, #020111, #000000);
-    overflow: hidden;
-    cursor: pointer;
-    font-family: "Arial", sans-serif;
-    color: white;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-  
-  /* Estilos del contenedor #app para el cursor de neón */
-  #app {
-    overflow: hidden;
-    touch-action: pan-up;
-    color: #ffffff;
-    font-family: 'Montserrat', sans-serif;
-    text-align: center;
-    text-shadow: 0 0 5px #ffffff, 0 0 20px #000, 0 0 30px #000;
-    position: relative; /* Para posicionar elementos hijos absolutamente si es necesario */
-  }
-  
-  /* Instrucciones de los fuegos artificiales */
-  .instructions {
-    font-size: 2rem;
-    font-weight: bold;
-    z-index: 10;
-    color: #ff9671;
-    text-shadow: 1px -1px 7px rgba(142, 142, 142, 0.8);
-  }
-  
-  /* Estilos para las partículas de los fuegos artificiales */
-  .projectile, .particule, .sparkle {
-    position: absolute;
-  }
-  
-  /* Projectile: la "bala" que sube antes de estallar */
-  .projectile {
-    width: 12px;
-    height: 12px;
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
-                0 0 30px rgba(255, 255, 255, 0.6),
-                0 0 40px rgba(255, 255, 255, 0.4);
-  }
-  
-  /* Particule: las letras que se dispersan */
-  .particule {
-    font-size: 2rem;
-    font-family: "Cursive", serif;
-    font-weight: bold;
-    color: white;
-    transform: scale(0);
-    opacity: 0;
-  }
-  
-  /* Sparkle: los destellos adicionales */
-  .sparkle {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: white;
-    transform: scale(0);
-    opacity: 0;
-  }
-  
-  /* Estilos específicos del cursor de neón */
-  #app h1 {
-    --fontSize: 60px;
-    --lineHeight: 80px;
-    width: auto;
-    height: calc(2 * var(--lineHeight));
-    line-height: var(--lineHeight);
-    margin: calc(50vh - var(--lineHeight)) auto 0;
-    font-size: var(--fontSize);
-    text-transform: uppercase;
-  }
-  
-  #app a {
-    margin-top: 10px;
-    display: inline-block;
-    text-decoration: none;
-    color: #fff;
-  }
-  
-  #app canvas {
-    display: block;
-    position: fixed;
-    z-index: -1;
-    top: 0;
-  }
-  
+/* Reinicio básico de márgenes y tamaños para que todo ocupe el 100% de la pantalla */
+html, body, #app {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fondo y estilo general del body */
+body {
+  background: radial-gradient(circle, #020111, #000000);
+  overflow: hidden;
+  cursor: pointer; /* Necesario si quieres mantener el cursor 'pointer' */
+  font-family: "Arial", sans-serif;
+  color: white;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* Texto de instrucciones */
+.instructions {
+  font-size: 2rem;
+  font-weight: bold;
+  z-index: 10;
+  color: #ff9671;
+  text-shadow: 1px -1px 7px rgb(142 142 142 / 80%);
+}
+
+/* Estilos para el "proyectil" que sube antes de explotar */
+.projectile {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.8),
+    0 0 30px rgba(255, 255, 255, 0.6),
+    0 0 40px rgba(255, 255, 255, 0.4);
+}
+
+/* Estilos para las letras que aparecen en la explosión */
+.particule {
+  position: absolute;
+  font-size: 2rem;
+  font-family: "Cursive", serif;
+  font-weight: bold;
+  color: white;
+  transform: scale(0);
+  opacity: 0;
+}
+
+/* Estilos para las chispas */
+.sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+  transform: scale(0);
+  opacity: 0;
+}
+
+/* Estilos adicionales heredados de neon-cursor.css */
+#app h1 {
+  --fontSize: 60px;
+  --lineHeight: 80px;
+  width: auto;
+  height: calc(2 * var(--lineHeight));
+  line-height: var(--lineHeight);
+  margin: calc(50vh - var(--lineHeight)) auto 0;
+  font-size: var(--fontSize);
+  text-transform: uppercase;
+}
+
+#app a {
+  margin-top: 10px;
+  display: inline-block;
+  text-decoration: none;
+  color: #fff;
+}
+
+#app canvas {
+  display: block;
+  position: fixed;
+  z-index: -1;
+  top: 0;
+}
