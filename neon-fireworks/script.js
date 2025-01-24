@@ -32,7 +32,7 @@ const colors = [
 ];
 
 // Mensaje que se va a mostrar con las letras
-const letters = "I LOVE YOU"; 
+const letters = "0123456789"; 
 let letterIndex = 0; // Índice para recorrer las letras
 
 // Retorna la siguiente letra del mensaje "I LOVE YOU"
