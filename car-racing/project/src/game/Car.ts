@@ -14,6 +14,9 @@
  * 7) **RE-IMPLEMENTED BACKWARD MOVEMENT**:
  *    - Modified the `brake()` method to allow negative speeds,
  *      enabling the car to move backward when the down arrow is pressed.
+ * 8) **SLOWED ACCELERATION AND BRAKING RATES**:
+ *    - Reduced the rate at which speed increases and decreases when
+ *      pressing the up or down arrow keys for smoother control.
  *************************************************************/
 
 import { Obstacle } from './Obstacle';
@@ -59,20 +62,28 @@ export class Car {
     this.invulnerableTime = 0;
   }
 
+  /**
+   * Accelerates the car by increasing the speed.
+   * **MODIFICATION:** Reduced acceleration rate from 0.2 to 0.1 for smoother speed increases.
+   */
   accelerate() {
     if (!this.crashed) {
-      this.speed += 0.2;
+      this.speed += 0.1; // Reduced from 0.2
       if (this.speed > this.maxSpeed * (this.boostTime > 0 ? 1.5 : 1)) {
         this.speed = this.maxSpeed * (this.boostTime > 0 ? 1.5 : 1);
       }
     }
   }
 
+  /**
+   * Brakes the car by decreasing the speed.
+   * **MODIFICATION:** Reduced braking rate from 0.2 to 0.1 for smoother speed decreases.
+   * **ALSO:** Removed the line that prevented speed from going negative to allow reverse movement.
+   */
   brake() {
     if (!this.crashed) {
-      this.speed -= 0.2;
-      // **MODIFICATION:** Removed the line that prevents speed from going negative.
-      // This allows the car to have negative speed (reverse movement).
+      this.speed -= 0.1; // Reduced from 0.2
+      // **REMOVED:** if (this.speed < 0) this.speed = 0;
       if (this.speed < -this.maxReverseSpeed) {
         this.speed = -this.maxReverseSpeed;
       }
@@ -412,7 +423,7 @@ export class Car {
   }
 
   /**
-   * Helper to draw a rounded rectangle.
+   * Helper to draw a rounded rectangle for the car body.
    */
   private roundedRect(
     ctx: CanvasRenderingContext2D,
