@@ -1,3 +1,8 @@
+import { Obstacle } from './Obstacle';        // NEW: Import Obstacle
+import { PowerUp } from './PowerUp';          // NEW: Import PowerUp
+import { Projectile } from './Projectile';    // NEW: Import Projectile
+
+
 export class Car {
   x: number;
   y: number;
