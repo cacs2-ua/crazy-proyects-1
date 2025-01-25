@@ -11,6 +11,7 @@ const INITIAL_ROTATION_SPEED = 0.01;
 const SPEED_INCREMENT = 0.01;
 const THROW_SPEED = 20;
 const OUTER_RING_WIDTH = 40; // Width of the outer ring where knives can stick
+const STICK_OFFSET = -55; // Distance from the outer edge where knives will stick
 
 export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -82,15 +83,21 @@ export default function Game() {
     drawTarget(ctx, target);
 
     // Update and draw stuck knives
-    knives.forEach(knife => {
-      // Position knives at the outer edge of the target
-      const knifeX = target.x + (target.radius - OUTER_RING_WIDTH/2) * Math.cos(target.rotation + knife.stickPosition);
-      const knifeY = target.y + (target.radius - OUTER_RING_WIDTH/2) * Math.sin(target.rotation + knife.stickPosition);
-      
+    knives.forEach((knife) => {
+      // Position knives at the desired STICK_DISTANCE inside the outer edge
+      const STICK_DISTANCE = target.radius - STICK_OFFSET;
+
+      const knifeX =
+        target.x +
+        STICK_DISTANCE * Math.cos(target.rotation + knife.stickPosition);
+      const knifeY =
+        target.y +
+        STICK_DISTANCE * Math.sin(target.rotation + knife.stickPosition);
+
       knife.x = knifeX;
       knife.y = knifeY;
-      knife.rotation = target.rotation + knife.stickPosition -Math.PI/2;
-      
+      knife.rotation = target.rotation + knife.stickPosition - Math.PI / 2;
+
       drawKnife(ctx, knife);
     });
 
@@ -99,24 +106,29 @@ export default function Game() {
       throwingKnife.y -= THROW_SPEED;
 
       const distanceToCenter = Math.sqrt(
-        Math.pow(throwingKnife.x - target.x, 2) + 
-        Math.pow(throwingKnife.y - target.y, 2)
+        Math.pow(throwingKnife.x - target.x, 2) +
+          Math.pow(throwingKnife.y - target.y, 2)
       );
 
-      // Check if the knife is in the outer ring area
-      const outerRingDistance = target.radius;
-      const innerRingDistance = target.radius - OUTER_RING_WIDTH;
-      
-      if (distanceToCenter <= outerRingDistance && distanceToCenter >= innerRingDistance) {
+      // CHANGED SECTION: Adjust collision detection to trigger earlier
+      const collisionMargin = STICK_OFFSET; // Using STICK_OFFSET to determine early collision
+      const outerRingDistance = target.radius - collisionMargin;
+      const innerRingDistance = target.radius - OUTER_RING_WIDTH - collisionMargin;
+
+      if (
+        distanceToCenter <= outerRingDistance &&
+        distanceToCenter >= innerRingDistance
+      ) {
         // Calculate angle of impact
-        const impactAngle = Math.atan2(
-          throwingKnife.y - target.y,
-          throwingKnife.x - target.x
-        ) - target.rotation;
+        const impactAngle =
+          Math.atan2(
+            throwingKnife.y - target.y,
+            throwingKnife.x - target.x
+          ) - target.rotation;
 
         // Check collision with other knives
         const collision = checkCollision(impactAngle, knives);
-        
+
         if (collision) {
           setGameOver(true);
           const newHighScore = Math.max(score, highScore);
@@ -125,15 +137,21 @@ export default function Game() {
           return;
         }
 
-        // Stick knife to target
+        // Stick knife to target at STICK_DISTANCE
+        const STICK_DISTANCE = target.radius - STICK_OFFSET;
+        const newKnifeX =
+          target.x + STICK_DISTANCE * Math.cos(target.rotation + impactAngle);
+        const newKnifeY =
+          target.y + STICK_DISTANCE * Math.sin(target.rotation + impactAngle);
+
         const newKnife = {
-          x: throwingKnife.x,
-          y: throwingKnife.y,
-          rotation: 0,
+          x: newKnifeX,
+          y: newKnifeY,
+          rotation: target.rotation + impactAngle - Math.PI / 2,
           stickPosition: impactAngle
         };
         gameState.current.knives.push(newKnife);
-        
+
         // Reset throwing knife
         gameState.current.throwingKnife = {
           x: CANVAS_SIZE / 2,
@@ -144,7 +162,7 @@ export default function Game() {
         };
 
         // Increase score and difficulty
-        setScore(prev => prev + 1);
+        setScore((prev) => prev + 1);
         target.rotationSpeed += SPEED_INCREMENT;
       } else if (distanceToCenter < innerRingDistance || throwingKnife.y < 0) {
         // Knife missed the outer ring or went off screen
@@ -185,7 +203,7 @@ export default function Game() {
           width={CANVAS_SIZE}
           height={CANVAS_SIZE}
           className="rounded-lg"
-          onClick={() => !gameOver ? throwKnife() : resetGame()}
+          onClick={() => (!gameOver ? throwKnife() : resetGame())}
         />
         {gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm">
