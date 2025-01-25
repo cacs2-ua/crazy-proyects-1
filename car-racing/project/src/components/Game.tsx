@@ -188,13 +188,27 @@ export function Game() {
       ctx.fillStyle = '#fff';
       ctx.font = '24px Arial';
       ctx.textAlign = 'left';
+      
+      // Display Speed
       ctx.fillText(`Speed: ${Math.floor(playerCar.speed * 30)}km/h`, 20, 40);
-      if (playerCar.currentPowerUp) {
-        ctx.fillText(`Power-up: ${playerCar.currentPowerUp}`, 20, 70);
+      
+      // **ADDED:** Display "Reversing" message when speed is negative
+      if (playerCar.speed < 0) {
+        ctx.fillStyle = '#ffcc00'; // Optional: Different color for emphasis
+        ctx.fillText('Reversing', 20, 70);
+        ctx.fillStyle = '#fff'; // Reset to original color
       }
+
+      // Display Power-Up
+      if (playerCar.currentPowerUp) {
+        ctx.fillText(`Power-up: ${playerCar.currentPowerUp}`, 20, 100);
+      }
+
+      // Display Recovery Status
       if (playerCar.crashed) {
         ctx.fillStyle = '#ff0000';
-        ctx.fillText(`Recovering: ${Math.ceil(playerCar.recoveryTime / 1000)}s`, 20, 100);
+        ctx.fillText(`Recovering: ${Math.ceil(playerCar.recoveryTime / 1000)}s`, 20, 130);
+        ctx.fillStyle = '#fff'; // Reset to original color
       }
     } else if (!gameStarted) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
