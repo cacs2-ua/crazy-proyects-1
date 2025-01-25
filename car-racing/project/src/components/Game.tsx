@@ -35,14 +35,14 @@ export function Game() {
   const [track] = useState(() => new Track(CANVAS_WIDTH, CANVAS_HEIGHT));
 
   /**
-   * **UPDATED SPWANING LOGIC FOR OBSTACLES**
+   * **UPDATED SPAWNING LOGIC FOR OBSTACLES**
    * Obstacles are now spawned uniformly across the entire width of the map.
    * Previously, obstacles were confined to the left and right borders.
    */
   const [obstacles, setObstacles] = useState<Obstacle[]>(() => {
     const obs: Obstacle[] = [];
     for (let y = CANVAS_HEIGHT - 500; y > track.finishLine + 500; y -= OBSTACLE_SPACING) {
-      // **OLD SPWANING LOGIC: Confined to left or right borders**
+      // **OLD SPAWNING LOGIC: Confined to left or right borders**
       // const side = Math.random() < 0.5 ? 'left' : 'right';
       // let x: number;
       // if (side === 'left') {
@@ -51,7 +51,7 @@ export function Game() {
       //   x = CANVAS_WIDTH - 100 + Math.random() * 60; // Between (width - 100)px and (width - 40)px from left
       // }
 
-      // **NEW SPWANING LOGIC: Uniform distribution across the entire map**
+      // **NEW SPAWNING LOGIC: Uniform distribution across the entire map**
       const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Ensure obstacles are within 40px from both borders
       const type = Math.random() < 0.7 ? 'rock' : 'oil';
       obs.push(new Obstacle(x, y, type));
@@ -60,14 +60,14 @@ export function Game() {
   });
 
   /**
-   * **UPDATED SPWANING LOGIC FOR POWER-UPS**
+   * **UPDATED SPAWNING LOGIC FOR POWER-UPS**
    * Power-ups are now spawned uniformly across the entire width of the map.
    * Previously, power-ups were confined to the left and right borders.
    */
   const [powerUps, setPowerUps] = useState<PowerUp[]>(() => {
     const pups: PowerUp[] = [];
     for (let y = CANVAS_HEIGHT - 300; y > track.finishLine + 300; y -= POWERUP_SPACING) {
-      // **OLD SPWANING LOGIC: Confined to left or right borders**
+      // **OLD SPAWNING LOGIC: Confined to left or right borders**
       // const side = Math.random() < 0.5 ? 'left' : 'right';
       // let x: number;
       // if (side === 'left') {
@@ -76,7 +76,7 @@ export function Game() {
       //   x = CANVAS_WIDTH - 100 + Math.random() * 60; // Between (width - 100)px and (width - 40)px from left
       // }
 
-      // **NEW SPWANING LOGIC: Uniform distribution across the entire map**
+      // **NEW SPAWNING LOGIC: Uniform distribution across the entire map**
       const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Ensure power-ups are within 40px from both borders
       const types: ('boost' | 'missile' | 'shield' | 'oil')[] = ['boost', 'missile', 'shield', 'oil'];
       const type = types[Math.floor(Math.random() * types.length)];
@@ -125,6 +125,11 @@ export function Game() {
     if (keys.current['ArrowLeft']) playerCar.moveLeft();
     else if (keys.current['ArrowRight']) playerCar.moveRight();
     else playerCar.stopLateralMovement();
+
+    // **NEW LOGIC: Apply friction when neither ArrowUp nor ArrowDown is pressed**
+    if (!keys.current['ArrowUp'] && !keys.current['ArrowDown']) {
+      playerCar.applyFriction();
+    }
 
     // Use power-up with spacebar
     if (keys.current[' ']) {

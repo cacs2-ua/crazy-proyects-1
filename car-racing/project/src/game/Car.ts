@@ -22,6 +22,7 @@
  *      and improved debris effects for a more striking crashed look.
  * 10) CHANGED WINDOW COLORS FROM GRAY TO BLUE:
  *     - Updated the front and rear window rectangles to blue to simulate realistic car windows.
+ * 11) **ADDED:** `applyFriction()` method to handle gradual deceleration when no input is given.
  *************************************************************/
 
 import { Obstacle } from './Obstacle';
@@ -50,7 +51,7 @@ export class Car {
   constructor(x: number, y: number, isPlayer: boolean = false, color: string = '#ff0000') {
     this.x = x;
     this.y = y;
-    this.maxSpeed = isPlayer ? 6 : 5;
+    this.maxSpeed = isPlayer ? 8 : 7;
     this.maxReverseSpeed = isPlayer ? 3 : 5;
     this.speed = isPlayer ? 0 : 3 + Math.random() * 3;
     this.lateralSpeed = 0;
@@ -72,7 +73,7 @@ export class Car {
    */
   accelerate() {
     if (!this.crashed) {
-      this.speed += 0.1; // Slower acceleration
+      this.speed += 0.025; // Slower acceleration
       if (this.speed > this.maxSpeed * (this.boostTime > 0 ? 1.5 : 1)) {
         this.speed = this.maxSpeed * (this.boostTime > 0 ? 1.5 : 1);
       }
@@ -84,7 +85,7 @@ export class Car {
    */
   brake() {
     if (!this.crashed) {
-      this.speed -= 0.1; // Slower braking
+      this.speed -= 0.025; // Slower braking
       if (this.speed < -this.maxReverseSpeed) {
         this.speed = -this.maxReverseSpeed;
       }
@@ -227,7 +228,7 @@ export class Car {
         this.crashed = false;
         this.speed = this.isPlayer ? 0 : 2;
         // Brief invulnerability
-        this.invulnerableTime = 500;
+        this.invulnerableTime = 750;
       }
     }
 
@@ -262,6 +263,21 @@ export class Car {
 
       // Update vertical position (negative speed means reverse)
       this.y -= this.speed;
+    }
+  }
+
+  /**
+   * Applies friction to gradually decelerate the car towards zero speed.
+   * This method should be called when neither accelerating nor braking.
+   */
+  applyFriction() {
+    const friction = 0.02; // Adjust this value for smoother or faster deceleration
+    if (this.speed > 0) {
+      this.speed -= friction;
+      if (this.speed < 0) this.speed = 0;
+    } else if (this.speed < 0) {
+      this.speed += friction;
+      if (this.speed > 0) this.speed = 0;
     }
   }
 
