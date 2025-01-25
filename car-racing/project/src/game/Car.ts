@@ -23,6 +23,7 @@
  * 10) CHANGED WINDOW COLORS FROM GRAY TO BLUE:
  *     - Updated the front and rear window rectangles to blue to simulate realistic car windows.
  * 11) **ADDED:** `applyFriction()` method to handle gradual deceleration when no input is given.
+ * 12) **MODIFIED:** Increased the shield circle's radius to fully cover the car.
  *************************************************************/
 
 import { Obstacle } from './Obstacle';
@@ -51,7 +52,7 @@ export class Car {
   constructor(x: number, y: number, isPlayer: boolean = false, color: string = '#ff0000') {
     this.x = x;
     this.y = y;
-    this.maxSpeed = isPlayer ? 8 : 7;
+    this.maxSpeed = isPlayer ? 8 : 0;
     this.maxReverseSpeed = isPlayer ? 3 : 5;
     this.speed = isPlayer ? 0 : 3 + Math.random() * 3;
     this.lateralSpeed = 0;
@@ -295,8 +296,9 @@ export class Car {
       ctx.strokeStyle = '#00ffff';
       ctx.lineWidth = 3;
       ctx.setLineDash([5, 3]);
+      // **MODIFIED:** Increased shield radius to cover the entire car
       ctx.beginPath();
-      ctx.arc(0, 0, this.width * 0.7, 0, Math.PI * 2);
+      ctx.arc(0, 0, this.width * 1.2, 0, Math.PI * 2);
       ctx.stroke();
       ctx.setLineDash([]);
     }
