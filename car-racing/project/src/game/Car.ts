@@ -35,7 +35,7 @@ export class Car {
   constructor(x: number, y: number, isPlayer: boolean = false, color: string = '#ff0000') {
     this.x = x;
     this.y = y;
-    this.maxSpeed = isPlayer ? 6 : 7;        // Adjusted maxSpeed for better balance
+    this.maxSpeed = isPlayer ? 6 : 5;        // Adjusted maxSpeed for better balance
     this.maxReverseSpeed = isPlayer ? 3 : 5;
     this.speed = isPlayer ? 0 : 3 + Math.random() * 3;
     this.lateralSpeed = 0;

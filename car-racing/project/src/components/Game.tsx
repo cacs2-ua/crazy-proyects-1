@@ -13,13 +13,27 @@ const POWERUP_SPACING = 800;
 
 export function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [playerCar] = useState(() => new Car(CANVAS_WIDTH / 2, CANVAS_HEIGHT - 100, true, '#00ff00'));
-  const [aiCars] = useState(() => [
-    new Car(CANVAS_WIDTH / 4, CANVAS_HEIGHT - 200, false, '#ff0000'),
-    new Car(CANVAS_WIDTH / 2, CANVAS_HEIGHT - 300, false, '#0000ff'),
-    new Car(3 * CANVAS_WIDTH / 4, CANVAS_HEIGHT - 400, false, '#ffff00')
-  ]);
+  
+  // Initialize the player car
+  const [playerCar] = useState(() => 
+    new Car(CANVAS_WIDTH / 2, CANVAS_HEIGHT - 100, true, '#4B0082')
+  );
+
+  // Initialize 7 AI cars with unique positions and colors
+  const [aiCars] = useState(() => {
+    const colors = ['#ff0000', '#0000ff', '#ff8000', '#006400', '#ff00ff', '#00ffff', '#ffffff'];
+    const cars: Car[] = [];
+    for (let i = 0; i < 7; i++) {
+      const x = 100 + i * 100; // Spacing AI cars horizontally
+      const y = CANVAS_HEIGHT - 200 - i * 100; // Stagger AI cars vertically
+      const color = colors[i % colors.length];
+      cars.push(new Car(x, y, false, color));
+    }
+    return cars;
+  });
+
   const [track] = useState(() => new Track(CANVAS_WIDTH, CANVAS_HEIGHT));
+
   const [obstacles] = useState(() => {
     const obs = [];
     for (let y = CANVAS_HEIGHT - 500; y > track.finishLine + 500; y -= OBSTACLE_SPACING) {
@@ -29,6 +43,7 @@ export function Game() {
     }
     return obs;
   });
+
   const [powerUps] = useState(() => {
     const pups = [];
     for (let y = CANVAS_HEIGHT - 300; y > track.finishLine + 300; y -= POWERUP_SPACING) {
@@ -39,6 +54,7 @@ export function Game() {
     }
     return pups;
   });
+
   const [projectiles, setProjectiles] = useState<Projectile[]>([]);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameFinished, setGameFinished] = useState(false);
@@ -203,7 +219,6 @@ export function Game() {
     }
   };
   
-
   useGameLoop(canvasRef, update, draw);
 
   useEffect(() => {
@@ -217,8 +232,10 @@ export function Game() {
         playerCar.currentPowerUp = null;
         
         aiCars.forEach((car, index) => {
-          car.x = (index + 1) * CANVAS_WIDTH / 4;
-          car.y = CANVAS_HEIGHT - 200 - index * 100;
+          const x = 100 + index * 100; // Reset AI cars' horizontal positions
+          const y = CANVAS_HEIGHT - 200 - index * 100; // Reset AI cars' vertical positions
+          car.x = x;
+          car.y = y;
           car.speed = 3 + Math.random() * 3;
           car.crashed = false;
           car.currentPowerUp = null;
@@ -238,7 +255,7 @@ export function Game() {
 
     window.addEventListener('keydown', handleSpace);
     return () => window.removeEventListener('keydown', handleSpace);
-  }, [gameStarted, gameFinished]);
+  }, [gameStarted, gameFinished, aiCars, powerUps, playerCar]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-4">
