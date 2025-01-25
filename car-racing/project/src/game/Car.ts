@@ -5,6 +5,8 @@
  * 1) Overhauled the `draw()` method to create a more appealing
  *    and "realistic" car design using canvas shapes.
  * 2) Enhanced the crashed state visuals with a distinct design.
+ * 3) Updated the boundary collision logic to crash all cars
+ *    (player and AI) when touching the left or right edges.
  *************************************************************/
 
 import { Obstacle } from './Obstacle';
@@ -33,7 +35,7 @@ export class Car {
   constructor(x: number, y: number, isPlayer: boolean = false, color: string = '#ff0000') {
     this.x = x;
     this.y = y;
-    this.maxSpeed = isPlayer ? 6 : 7;        // AI and player both have maxSpeed=8
+    this.maxSpeed = isPlayer ? 6 : 7;        // Adjusted maxSpeed for better balance
     this.maxReverseSpeed = isPlayer ? 3 : 5;
     this.speed = isPlayer ? 0 : 3 + Math.random() * 3;
     this.lateralSpeed = 0;
@@ -109,8 +111,6 @@ export class Car {
   usePowerUp(): Projectile | null {
     if (!this.currentPowerUp) return null;
 
-
-    
     let projectile = null;
     switch (this.currentPowerUp) {
       case 'boost':
@@ -200,14 +200,18 @@ export class Car {
 
     if (!this.crashed) {
       this.x += this.lateralSpeed;
+
+      // **Boundary Collision Logic**
+      // Crash the car if it touches the left or right edge
       if (this.x < this.width / 2) {
         this.x = this.width / 2;
-        if (!this.isPlayer) this.crash();
+        this.crash(); // Crash regardless of player or AI
       }
       if (this.x > trackWidth - this.width / 2) {
         this.x = trackWidth - this.width / 2;
-        if (!this.isPlayer) this.crash();
+        this.crash(); // Crash regardless of player or AI
       }
+
       this.y -= this.speed;
     }
   }
@@ -253,16 +257,16 @@ export class Car {
    * Draws the car in its normal (not crashed) state.
    */
   private drawNormalCar(ctx: CanvasRenderingContext2D) {
-    // Car body: Let's draw a rounded rectangle to look more "car-like"
+    // Car body: Rounded rectangle for a more "car-like" appearance
     ctx.fillStyle = this.color;
     this.roundedRect(ctx, -this.width / 2, -this.height / 2, this.width, this.height, 8);
 
     // Windshield & windows
     ctx.fillStyle = '#222'; // Dark glass
-    // A rectangle in the upper center of the car (windshield + roof)
+    // Rectangle in the upper center of the car (windshield + roof)
     ctx.fillRect(-this.width / 4, -this.height / 2 + 5, this.width / 2, this.height / 4);
 
-    // Wheels: two ellipses at the corners
+    // Wheels: Two ellipses at the corners
     ctx.fillStyle = '#000';
     // Front wheels
     this.drawWheel(ctx, -this.width / 2 + 5, -this.height / 4);
@@ -271,7 +275,7 @@ export class Car {
     this.drawWheel(ctx, -this.width / 2 + 5, this.height / 4);
     this.drawWheel(ctx, this.width / 2 - 5, this.height / 4);
 
-    // Headlights (if we want them at the front)
+    // Headlights (optional, at the front)
     ctx.fillStyle = '#ffff00';
     ctx.fillRect(-this.width / 3, -this.height / 2, 8, 4);
     ctx.fillRect(this.width / 3 - 8, -this.height / 2, 8, 4);
@@ -293,8 +297,9 @@ export class Car {
    * and some "smoke" effect for a more dramatic appearance.
    */
   private drawCrashedCar(ctx: CanvasRenderingContext2D) {
-    // Tilt the car
+    // Tilt the car for a crashed effect
     ctx.rotate(Math.PI / 6);
+
     // Main body as a "damaged" polygon
     ctx.fillStyle = '#666';
     ctx.beginPath();
@@ -320,7 +325,7 @@ export class Car {
 
     // Smoke puffs
     ctx.fillStyle = 'rgba(50, 50, 50, 0.6)';
-    // Just draw a few circles near the top
+    // Draw a few circles near the top for smoke
     for (let i = 0; i < 3; i++) {
       ctx.beginPath();
       const puffX = -this.width / 4 + i * (this.width / 6);
