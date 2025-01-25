@@ -17,10 +17,10 @@
  * 8) SLOWED ACCELERATION AND BRAKING RATES:
  *    - Reduced the rate at which speed increases and decreases for
  *      smoother control.
- * 9) **FURTHER ENHANCED NORMAL AND CRASHED VISUALS**:
+ * 9) FURTHER ENHANCED NORMAL AND CRASHED VISUALS:
  *    - Added multi-layer gradients, glossy reflections, chrome edges,
  *      and improved debris effects for a more striking crashed look.
- * 10) **CHANGED WINDOW COLORS FROM GRAY TO BLUE**:
+ * 10) CHANGED WINDOW COLORS FROM GRAY TO BLUE:
  *     - Updated the front and rear window rectangles to blue to simulate realistic car windows.
  *************************************************************/
 
@@ -248,13 +248,15 @@ export class Car {
     if (!this.crashed) {
       this.x += this.lateralSpeed;
 
-      // Crash if going beyond left or right boundaries
-      if (this.x < this.width / 2) {
-        this.x = this.width / 2;
+      // **UPDATED COLLISION LOGIC WITH RED BORDERS**
+      // Crash if touching the left red border (20px wide)
+      if (this.x - this.width / 2 <= 20) {
+        this.x = 20 + this.width / 2;
         this.crash();
       }
-      if (this.x > trackWidth - this.width / 2) {
-        this.x = trackWidth - this.width / 2;
+      // Crash if touching the right red border (20px wide)
+      if (this.x + this.width / 2 >= trackWidth - 20) {
+        this.x = trackWidth - 20 - this.width / 2;
         this.crash();
       }
 
@@ -368,7 +370,7 @@ export class Car {
     ctx.restore();
 
     // **CHANGED WINDOW COLORS FROM GRAY TO BLUE**
-    ctx.fillStyle = '#4169E1'; // DodgerBlue for windows
+    ctx.fillStyle = '#4169E1'; // RoyalBlue for windows
     // Front window
     ctx.fillRect(-this.width / 4, -this.height / 2 + 6, this.width / 2, this.height / 6);
     // Rear window

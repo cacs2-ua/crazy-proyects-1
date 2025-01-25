@@ -8,8 +8,8 @@ import { Projectile } from '../game/Projectile';
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
-const OBSTACLE_SPACING = 500;
-const POWERUP_SPACING = 800;
+const OBSTACLE_SPACING = 500; // Distance between consecutive obstacles vertically
+const POWERUP_SPACING = 800; // Distance between consecutive power-ups vertically
 
 export function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -24,7 +24,7 @@ export function Game() {
     const colors = ['#ff0000', '#0000ff', '#ff8000', '#006400', '#ff00ff', '#00ffff', '#ffffff'];
     const cars: Car[] = [];
     for (let i = 0; i < 7; i++) {
-      const x = 100 + i * 100; // Spacing AI cars horizontally
+      const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Ensure AI cars start within 40px from borders
       const y = CANVAS_HEIGHT - 200 - i * 100; // Stagger AI cars vertically
       const color = colors[i % colors.length];
       cars.push(new Car(x, y, false, color));
@@ -34,20 +34,50 @@ export function Game() {
 
   const [track] = useState(() => new Track(CANVAS_WIDTH, CANVAS_HEIGHT));
 
-  const [obstacles] = useState(() => {
-    const obs = [];
+  /**
+   * **UPDATED SPWANING LOGIC FOR OBSTACLES**
+   * Obstacles are now spawned uniformly across the entire width of the map.
+   * Previously, obstacles were confined to the left and right borders.
+   */
+  const [obstacles, setObstacles] = useState<Obstacle[]>(() => {
+    const obs: Obstacle[] = [];
     for (let y = CANVAS_HEIGHT - 500; y > track.finishLine + 500; y -= OBSTACLE_SPACING) {
-      const x = 100 + Math.random() * (CANVAS_WIDTH - 200);
+      // **OLD SPWANING LOGIC: Confined to left or right borders**
+      // const side = Math.random() < 0.5 ? 'left' : 'right';
+      // let x: number;
+      // if (side === 'left') {
+      //   x = 40 + Math.random() * 60; // Between 40px and 100px from left
+      // } else {
+      //   x = CANVAS_WIDTH - 100 + Math.random() * 60; // Between (width - 100)px and (width - 40)px from left
+      // }
+
+      // **NEW SPWANING LOGIC: Uniform distribution across the entire map**
+      const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Ensure obstacles are within 40px from both borders
       const type = Math.random() < 0.7 ? 'rock' : 'oil';
       obs.push(new Obstacle(x, y, type));
     }
     return obs;
   });
 
-  const [powerUps] = useState(() => {
-    const pups = [];
+  /**
+   * **UPDATED SPWANING LOGIC FOR POWER-UPS**
+   * Power-ups are now spawned uniformly across the entire width of the map.
+   * Previously, power-ups were confined to the left and right borders.
+   */
+  const [powerUps, setPowerUps] = useState<PowerUp[]>(() => {
+    const pups: PowerUp[] = [];
     for (let y = CANVAS_HEIGHT - 300; y > track.finishLine + 300; y -= POWERUP_SPACING) {
-      const x = 100 + Math.random() * (CANVAS_WIDTH - 200);
+      // **OLD SPWANING LOGIC: Confined to left or right borders**
+      // const side = Math.random() < 0.5 ? 'left' : 'right';
+      // let x: number;
+      // if (side === 'left') {
+      //   x = 40 + Math.random() * 60; // Between 40px and 100px from left
+      // } else {
+      //   x = CANVAS_WIDTH - 100 + Math.random() * 60; // Between (width - 100)px and (width - 40)px from left
+      // }
+
+      // **NEW SPWANING LOGIC: Uniform distribution across the entire map**
+      const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Ensure power-ups are within 40px from both borders
       const types: ('boost' | 'missile' | 'shield' | 'oil')[] = ['boost', 'missile', 'shield', 'oil'];
       const type = types[Math.floor(Math.random() * types.length)];
       pups.push(new PowerUp(x, y, type));
@@ -81,6 +111,11 @@ export function Game() {
     };
   }, []);
 
+  /**
+   * **UPDATE FUNCTION**
+   * Handles game state updates, including player controls, car movements,
+   * power-up usage, collision detection, and game progression.
+   */
   const update = (deltaTime: number) => {
     if (!gameStarted || gameFinished) return;
 
@@ -174,6 +209,10 @@ export function Game() {
     }
   };
 
+  /**
+   * **DRAW FUNCTION**
+   * Handles rendering all game elements onto the canvas.
+   */
   const draw = (ctx: CanvasRenderingContext2D) => {
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
@@ -235,19 +274,26 @@ export function Game() {
   
   useGameLoop(canvasRef, update, draw);
 
+  /**
+   * **GAME RESET LOGIC**
+   * Resets the game state when the player presses the Spacebar after game start or finish.
+   * This includes repositioning cars, respawning obstacles and power-ups uniformly across the map,
+   * and clearing projectiles.
+   */
   useEffect(() => {
     const handleSpace = (e: KeyboardEvent) => {
       if (e.code === 'Space' && (!gameStarted || gameFinished)) {
-        // Reset game state
+        // Reset player car
         playerCar.x = CANVAS_WIDTH / 2;
         playerCar.y = CANVAS_HEIGHT - 100;
         playerCar.speed = 0;
         playerCar.crashed = false;
         playerCar.currentPowerUp = null;
         
+        // Reset AI cars
         aiCars.forEach((car, index) => {
-          const x = 100 + index * 100; // Reset AI cars' horizontal positions
-          const y = CANVAS_HEIGHT - 200 - index * 100; // Reset AI cars' vertical positions
+          const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Uniform distribution across width
+          const y = CANVAS_HEIGHT - 200 - index * 100; // Stagger AI cars vertically
           car.x = x;
           car.y = y;
           car.speed = 3 + Math.random() * 3;
@@ -255,12 +301,29 @@ export function Game() {
           car.currentPowerUp = null;
         });
         
-        // Reset power-ups
-        powerUps.forEach(powerUp => powerUp.active = true);
+        // **RESET OBSTACLES TO SPAWN UNIFORMLY ACROSS THE MAP**
+        const newObstacles: Obstacle[] = [];
+        for (let y = CANVAS_HEIGHT - 500; y > track.finishLine + 500; y -= OBSTACLE_SPACING) {
+          const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Uniform distribution across width
+          const type = Math.random() < 0.7 ? 'rock' : 'oil';
+          newObstacles.push(new Obstacle(x, y, type));
+        }
+        setObstacles(newObstacles);
+        
+        // **RESET POWER-UPS TO SPAWN UNIFORMLY ACROSS THE MAP**
+        const newPowerUps: PowerUp[] = [];
+        for (let y = CANVAS_HEIGHT - 300; y > track.finishLine + 300; y -= POWERUP_SPACING) {
+          const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Uniform distribution across width
+          const types: ('boost' | 'missile' | 'shield' | 'oil')[] = ['boost', 'missile', 'shield', 'oil'];
+          const type = types[Math.floor(Math.random() * types.length)];
+          newPowerUps.push(new PowerUp(x, y, type));
+        }
+        setPowerUps(newPowerUps);
         
         // Clear projectiles
         setProjectiles([]);
         
+        // Reset camera
         cameraY.current = CANVAS_HEIGHT - 200;
         setGameFinished(false);
         setGameStarted(true);
@@ -269,7 +332,7 @@ export function Game() {
 
     window.addEventListener('keydown', handleSpace);
     return () => window.removeEventListener('keydown', handleSpace);
-  }, [gameStarted, gameFinished, aiCars, powerUps, playerCar]);
+  }, [gameStarted, gameFinished, aiCars, track]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-4">
