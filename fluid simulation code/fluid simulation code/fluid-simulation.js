@@ -257,6 +257,8 @@ function createDoubleFBO(w, h, type) {
 }
 
 function render(t) {
+  gl.clearColor(1.0, 1.0, 0.0, 1.0); // Color RGBA: Amarillo (RGB=1,1,0)
+  gl.clear(gl.COLOR_BUFFER_BIT);
   const dt = 1 / 60;
 
   if (t && isPreview) {
