@@ -42,16 +42,7 @@ export function Game() {
   const [obstacles, setObstacles] = useState<Obstacle[]>(() => {
     const obs: Obstacle[] = [];
     for (let y = CANVAS_HEIGHT - 500; y > track.finishLine + 500; y -= OBSTACLE_SPACING) {
-      // **OLD SPAWNING LOGIC: Confined to left or right borders**
-      // const side = Math.random() < 0.5 ? 'left' : 'right';
-      // let x: number;
-      // if (side === 'left') {
-      //   x = 40 + Math.random() * 60; // Between 40px and 100px from left
-      // } else {
-      //   x = CANVAS_WIDTH - 100 + Math.random() * 60; // Between (width - 100)px and (width - 40)px from left
-      // }
 
-      // **NEW SPAWNING LOGIC: Uniform distribution across the entire map**
       const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Ensure obstacles are within 40px from both borders
       const type = Math.random() < 0.7 ? 'rock' : 'oil';
       obs.push(new Obstacle(x, y, type));
@@ -60,23 +51,14 @@ export function Game() {
   });
 
   /**
-   * **UPDATED SPAWNING LOGIC FOR POWER-UPS**
    * Power-ups are now spawned uniformly across the entire width of the map.
    * Previously, power-ups were confined to the left and right borders.
    */
   const [powerUps, setPowerUps] = useState<PowerUp[]>(() => {
     const pups: PowerUp[] = [];
     for (let y = CANVAS_HEIGHT - 300; y > track.finishLine + 300; y -= POWERUP_SPACING) {
-      // **OLD SPAWNING LOGIC: Confined to left or right borders**
-      // const side = Math.random() < 0.5 ? 'left' : 'right';
-      // let x: number;
-      // if (side === 'left') {
-      //   x = 40 + Math.random() * 60; // Between 40px and 100px from left
-      // } else {
-      //   x = CANVAS_WIDTH - 100 + Math.random() * 60; // Between (width - 100)px and (width - 40)px from left
-      // }
 
-      // **NEW SPAWNING LOGIC: Uniform distribution across the entire map**
+
       const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Ensure power-ups are within 40px from both borders
       const types: ('boost' | 'missile' | 'shield' | 'oil')[] = ['boost', 'missile', 'shield', 'oil'];
       const type = types[Math.floor(Math.random() * types.length)];

@@ -1,31 +1,3 @@
-/*************************************************************
- * FILE: game/Car.ts
- *
- * CHANGES MADE:
- * 1) Overhauled the `draw()` method to create a more appealing
- *    and "realistic" car design using canvas shapes.
- * 2) Enhanced the crashed state visuals with a distinct design.
- * 3) Updated the boundary collision logic to crash all cars
- *    (player and AI) when touching the left or right edges.
- * 4) Prevent clearing the `currentPowerUp` when a crash occurs,
- *    so the car retains it after recovering.
- * 5) Allows collisions with power-ups even during invincibility.
- * 6) Added "NEW VISUAL IMPROVEMENTS" for a more realistic look.
- * 7) RE-IMPLEMENTED BACKWARD MOVEMENT:
- *    - Modified the `brake()` method to allow negative speeds,
- *      enabling the car to move backward when the down arrow is pressed.
- * 8) SLOWED ACCELERATION AND BRAKING RATES:
- *    - Reduced the rate at which speed increases and decreases for
- *      smoother control.
- * 9) FURTHER ENHANCED NORMAL AND CRASHED VISUALS:
- *    - Added multi-layer gradients, glossy reflections, chrome edges,
- *      and improved debris effects for a more striking crashed look.
- * 10) CHANGED WINDOW COLORS FROM GRAY TO BLUE:
- *     - Updated the front and rear window rectangles to blue to simulate realistic car windows.
- * 11) **ADDED:** `applyFriction()` method to handle gradual deceleration when no input is given.
- * 12) **MODIFIED:** Increased the shield circle's radius to fully cover the car.
- *************************************************************/
-
 import { Obstacle } from './Obstacle';
 import { PowerUp } from './PowerUp';
 import { Projectile } from './Projectile';
