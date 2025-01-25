@@ -20,6 +20,8 @@
  * 9) **FURTHER ENHANCED NORMAL AND CRASHED VISUALS**:
  *    - Added multi-layer gradients, glossy reflections, chrome edges,
  *      and improved debris effects for a more striking crashed look.
+ * 10) **CHANGED WINDOW COLORS FROM GRAY TO BLUE**:
+ *     - Updated the front and rear window rectangles to blue to simulate realistic car windows.
  *************************************************************/
 
 import { Obstacle } from './Obstacle';
@@ -305,6 +307,7 @@ export class Car {
    *  - Chrome edges
    *  - Racing stripes (2 stripes down center)
    *  - Enhanced spoiler
+   *  - **Blue windows instead of gray**
    */
   private drawNormalCar(ctx: CanvasRenderingContext2D) {
     // Multi-layer gradient for the car body
@@ -364,9 +367,11 @@ export class Car {
     ctx.fillRect(-this.width / 4 - 1, this.height / 2 - 12, this.width / 2 + 2, 4);
     ctx.restore();
 
-    // Windows
-    ctx.fillStyle = '#333';
+    // **CHANGED WINDOW COLORS FROM GRAY TO BLUE**
+    ctx.fillStyle = '#4169E1'; // DodgerBlue for windows
+    // Front window
     ctx.fillRect(-this.width / 4, -this.height / 2 + 6, this.width / 2, this.height / 6);
+    // Rear window
     ctx.fillRect(-this.width / 4, this.height / 6, this.width / 2, this.height / 6);
 
     // Draw wheels with rims
