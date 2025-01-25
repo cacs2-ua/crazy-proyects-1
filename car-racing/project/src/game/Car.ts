@@ -108,8 +108,9 @@ export class Car {
 
   usePowerUp(): Projectile | null {
     if (!this.currentPowerUp) return null;
-    
 
+
+    
     let projectile = null;
     switch (this.currentPowerUp) {
       case 'boost':
