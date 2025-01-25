@@ -11,12 +11,9 @@
  *    so the car retains it after recovering.
  * 5) Allows collisions with power-ups even during invincibility.
  * 6) Added "NEW VISUAL IMPROVEMENTS" for a more realistic look.
- *
- * 7) **FIXED THE WHEELS BUG**: Now all four wheels are drawn
- *    with the correct black outer color & gray rim. We added
- *    `ctx.save()` / `ctx.restore()` inside `drawWheelWithRim()`
- *    to prevent the rim color (#777) from affecting subsequent
- *    wheels.
+ * 7) **RE-IMPLEMENTED BACKWARD MOVEMENT**:
+ *    - Modified the `brake()` method to allow negative speeds,
+ *      enabling the car to move backward when the down arrow is pressed.
  *************************************************************/
 
 import { Obstacle } from './Obstacle';
@@ -74,7 +71,8 @@ export class Car {
   brake() {
     if (!this.crashed) {
       this.speed -= 0.2;
-      if (this.speed < 0) this.speed = 0;
+      // **MODIFICATION:** Removed the line that prevents speed from going negative.
+      // This allows the car to have negative speed (reverse movement).
       if (this.speed < -this.maxReverseSpeed) {
         this.speed = -this.maxReverseSpeed;
       }
@@ -104,16 +102,18 @@ export class Car {
       this.crashed = true;
       this.recoveryTime = 2000; // 2 seconds
       this.speed = 0;
-      // Retain currentPowerUp to avoid losing item on crash
+      // Retain the current power-up after a crash; do not reset currentPowerUp.
       this.boostTime = 0;
     }
   }
 
   /**
-   * Checks collision with other objects, ignoring invincibility for power-ups.
+   * Checks for collision with another object.
+   * - Allows collision with PowerUps regardless of invincibility.
+   * - Ignores collision with other objects if invulnerable, except PowerUps.
    */
   checkCollision(other: Car | Obstacle | PowerUp | Projectile): boolean {
-    // Even if invulnerable, allow collision with PowerUp
+    // Allow collision with PowerUp regardless of invincibility
     if (!(other instanceof PowerUp) && this.invulnerableTime > 0) {
       return false;
     }
@@ -163,7 +163,6 @@ export class Car {
             Math.abs(obstacle.x - this.x) < 80
           ) {
             potentialCollision = true;
-            // Move horizontally away from obstacle
             this.targetX = obstacle.x < this.x
               ? Math.min(this.x + 100, trackWidth - margin)
               : Math.max(this.x - 100, margin);
@@ -175,7 +174,6 @@ export class Car {
         this.targetX = margin + Math.random() * (trackWidth - 2 * margin);
       }
 
-      // Move towards targetX
       if (this.x < this.targetX - 5) {
         this.lateralSpeed = 3;
       } else if (this.x > this.targetX + 5) {
@@ -184,16 +182,13 @@ export class Car {
         this.lateralSpeed = 0;
       }
 
-      // Keep in track
       if (this.x < margin) this.targetX = margin;
       if (this.x > trackWidth - margin) this.targetX = trackWidth - margin;
 
-      // Occasionally use power-up if we have one
       if (this.currentPowerUp && Math.random() < 0.1) {
         this.usePowerUp();
       }
 
-      // Random speed boost
       if (Math.random() < 0.05) {
         this.speed = Math.min(this.maxSpeed * (this.boostTime > 0 ? 1.5 : 1), this.speed + 0.5);
       }
@@ -224,7 +219,7 @@ export class Car {
     if (!this.crashed) {
       this.x += this.lateralSpeed;
 
-      // Edge collisions -> crash
+      // Boundary collision logic for all cars
       if (this.x < this.width / 2) {
         this.x = this.width / 2;
         this.crash();
@@ -239,11 +234,12 @@ export class Car {
   }
 
   /**
-   * Draw the car with a realistic design. If crashed, switch style.
+   * Draw the car with a realistic and appealing design.
+   * - If crashed, calls drawCrashedCar instead.
    */
   draw(ctx: CanvasRenderingContext2D, cameraY: number) {
     const screenY = this.y - cameraY;
-    
+
     ctx.save();
     ctx.translate(this.x, screenY);
 
@@ -262,7 +258,7 @@ export class Car {
       this.drawNormalCar(ctx);
     }
 
-    // Draw power-up text
+    // Draw power-up text (if any)
     if (this.currentPowerUp) {
       ctx.fillStyle = '#fff';
       ctx.font = '14px Arial';
@@ -274,19 +270,22 @@ export class Car {
   }
 
   /**
-   * Normal state design with gradient, stripes, mirrors, spoiler, etc.
+   * Normal (not crashed) car design:
+   *  - Gradient body with stripes.
+   *  - Front and rear windshields + side mirrors.
+   *  - Spoiler at the back.
    */
   private drawNormalCar(ctx: CanvasRenderingContext2D) {
-    // Gradient body
+    // Create a gradient fill for the car body
     const bodyGradient = ctx.createLinearGradient(-this.width / 2, 0, this.width / 2, 0);
     bodyGradient.addColorStop(0, this.color);
-    bodyGradient.addColorStop(1, '#222');
+    bodyGradient.addColorStop(1, '#222'); // darker shade for a subtle gradient
 
-    // Body
+    // Car body with a gradient
     ctx.fillStyle = bodyGradient;
     this.roundedRect(ctx, -this.width / 2, -this.height / 2, this.width, this.height, 8);
 
-    // Racing stripes
+    // Add racing stripes: 2 narrow stripes down the center
     ctx.fillStyle = '#ffffff';
     const stripeWidth = 3;
     ctx.fillRect(-stripeWidth, -this.height / 2 + 2, stripeWidth, this.height - 4);
@@ -294,23 +293,23 @@ export class Car {
 
     // Side mirrors
     ctx.fillStyle = '#444';
-    // Left
+    // Left mirror
     ctx.fillRect(-this.width / 2 - 5, -this.height / 4, 5, 3);
-    // Right
+    // Right mirror
     ctx.fillRect(this.width / 2, -this.height / 4, 5, 3);
 
-    // Spoiler
+    // Spoiler at the back
     ctx.fillStyle = '#111';
     ctx.fillRect(-this.width / 4, this.height / 2 - 5, this.width / 2, 5);
 
-    // Windows
+    // Windshield + windows (front + back)
     ctx.fillStyle = '#333';
     // Front windshield
     ctx.fillRect(-this.width / 4, -this.height / 2 + 5, this.width / 2, this.height / 6);
     // Rear window
     ctx.fillRect(-this.width / 4, this.height / 6, this.width / 2, this.height / 6);
 
-    // Wheels
+    // Wheels (with a slight offset to represent rims)
     ctx.save();
     ctx.fillStyle = '#000';
     // Front wheels
@@ -339,11 +338,13 @@ export class Car {
   }
 
   /**
-   * Crashed car design with extra debris and shading.
+   * Crashed car design with more debris and shading.
    */
   private drawCrashedCar(ctx: CanvasRenderingContext2D) {
+    // Tilt the car for a crashed effect
     ctx.rotate(Math.PI / 6);
 
+    // Body polygon with a darker shade
     ctx.fillStyle = '#444';
     ctx.beginPath();
     ctx.moveTo(-this.width / 2, -this.height / 2);
@@ -355,10 +356,11 @@ export class Car {
     ctx.closePath();
     ctx.fill();
 
-    // Debris lines
+    // Add crash lines or cracks
     ctx.strokeStyle = '#ff0000';
     ctx.lineWidth = 2;
     ctx.beginPath();
+    // A big 'X' across the body
     ctx.moveTo(-this.width / 2, -this.height / 2);
     ctx.lineTo(this.width / 2, this.height / 2);
     ctx.moveTo(this.width / 2, -this.height / 2);
@@ -367,6 +369,7 @@ export class Car {
 
     // Smoke puffs
     ctx.fillStyle = 'rgba(50, 50, 50, 0.6)';
+    // Draw a few circles near the top for smoke
     for (let i = 0; i < 4; i++) {
       ctx.beginPath();
       const puffX = -this.width / 4 + i * (this.width / 8);
@@ -378,7 +381,7 @@ export class Car {
 
   /**
    * Helper to draw a wheel with a "rim" effect.
-   *  -- FIX: Add ctx.save() / ctx.restore() so each wheel
+   *  -- FIX: Added ctx.save() / ctx.restore() so each wheel
    *     properly resets the fillStyle to black after drawing the rim.
    */
   private drawWheelWithRim(ctx: CanvasRenderingContext2D, offsetX: number, offsetY: number) {
@@ -400,7 +403,7 @@ export class Car {
   }
 
   /**
-   * Basic wheel (unused).
+   * Basic wheel drawing (unused here, but left for reference).
    */
   private drawWheel(ctx: CanvasRenderingContext2D, offsetX: number, offsetY: number) {
     ctx.beginPath();
@@ -409,7 +412,7 @@ export class Car {
   }
 
   /**
-   * Helper to draw a rounded rectangle for the car body.
+   * Helper to draw a rounded rectangle.
    */
   private roundedRect(
     ctx: CanvasRenderingContext2D,
