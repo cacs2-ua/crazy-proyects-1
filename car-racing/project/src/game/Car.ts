@@ -7,6 +7,11 @@
  * 2) Enhanced the crashed state visuals with a distinct design.
  * 3) Updated the boundary collision logic to crash all cars
  *    (player and AI) when touching the left or right edges.
+ * 4) **MODIFICATIONS ADDED:**
+ *    - Prevent clearing the `currentPowerUp` when a crash occurs
+ *      to ensure the car retains its power-up after recovering.
+ *    - Adjusted the `checkCollision` method to allow collisions
+ *      with power-ups regardless of the invincibility state.
  *************************************************************/
 
 import { Obstacle } from './Obstacle';
@@ -93,12 +98,22 @@ export class Car {
       this.crashed = true;
       this.recoveryTime = 2000; // 2 seconds
       this.speed = 0;
+      // **MODIFICATION:** Removed the following line to retain the current power-up after a crash
+      // this.currentPowerUp = null;
       this.boostTime = 0;
     }
   }
 
+  /**
+   * Checks for collision with another object.
+   * - Allows collision with PowerUps regardless of invincibility.
+   * - Ignores collision with other objects if invulnerable, except PowerUps.
+   */
   checkCollision(other: Car | Obstacle | PowerUp | Projectile): boolean {
-    if (this.invulnerableTime > 0) return false;
+    // **MODIFICATION ADDED:**
+    // Allow collision with PowerUp regardless of invincibility
+    if (!(other instanceof PowerUp) && this.invulnerableTime > 0) return false;
+
     return (
       this.x - this.width / 2 < other.x + other.width / 2 &&
       this.x + this.width / 2 > other.x - other.width / 2 &&
