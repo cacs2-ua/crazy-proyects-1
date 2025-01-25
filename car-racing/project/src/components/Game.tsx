@@ -9,13 +9,13 @@ import { Projectile } from '../game/Projectile';
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
 const OBSTACLE_SPACING = 350; // Distance between consecutive obstacles vertically
-const POWERUP_SPACING = 300; // Distance between consecutive power-ups vertically
+const POWERUP_SPACING = 300;  // Distance between consecutive power-ups vertically
 
 export function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
+
   // Initialize the player car
-  const [playerCar] = useState(() => 
+  const [playerCar] = useState(() =>
     new Car(CANVAS_WIDTH / 2, CANVAS_HEIGHT - 100, true, '#4B0082')
   );
 
@@ -24,8 +24,8 @@ export function Game() {
     const colors = ['#ff0000', '#0000ff', '#ff8000', '#006400', '#ff00ff', '#00ffff', '#ffffff'];
     const cars: Car[] = [];
     for (let i = 0; i < 7; i++) {
-      const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Ensure AI cars start within 40px from borders
-      const y = CANVAS_HEIGHT - 200 - i * 100; // Stagger AI cars vertically
+      const x = 40 + Math.random() * (CANVAS_WIDTH - 80); 
+      const y = CANVAS_HEIGHT - 200 - i * 100;
       const color = colors[i % colors.length];
       cars.push(new Car(x, y, false, color));
     }
@@ -34,32 +34,22 @@ export function Game() {
 
   const [track] = useState(() => new Track(CANVAS_WIDTH, CANVAS_HEIGHT));
 
-  /**
-   * **UPDATED SPAWNING LOGIC FOR OBSTACLES**
-   * Obstacles are now spawned uniformly across the entire width of the map.
-   * Previously, obstacles were confined to the left and right borders.
-   */
+  // Spawn obstacles uniformly
   const [obstacles, setObstacles] = useState<Obstacle[]>(() => {
     const obs: Obstacle[] = [];
     for (let y = CANVAS_HEIGHT - 500; y > track.finishLine + 500; y -= OBSTACLE_SPACING) {
-
-      const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Ensure obstacles are within 40px from both borders
+      const x = 40 + Math.random() * (CANVAS_WIDTH - 80);
       const type = Math.random() < 0.7 ? 'rock' : 'oil';
       obs.push(new Obstacle(x, y, type));
     }
     return obs;
   });
 
-  /**
-   * Power-ups are now spawned uniformly across the entire width of the map.
-   * Previously, power-ups were confined to the left and right borders.
-   */
+  // Spawn power-ups uniformly
   const [powerUps, setPowerUps] = useState<PowerUp[]>(() => {
     const pups: PowerUp[] = [];
     for (let y = CANVAS_HEIGHT - 300; y > track.finishLine + 300; y -= POWERUP_SPACING) {
-
-
-      const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Ensure power-ups are within 40px from both borders
+      const x = 40 + Math.random() * (CANVAS_WIDTH - 80);
       const types: ('boost' | 'missile' | 'shield' | 'oil')[] = ['boost', 'missile', 'shield', 'oil'];
       const type = types[Math.floor(Math.random() * types.length)];
       pups.push(new PowerUp(x, y, type));
@@ -71,7 +61,7 @@ export function Game() {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameFinished, setGameFinished] = useState(false);
   const [winner, setWinner] = useState<string>('');
-  
+
   const keys = useRef<{ [key: string]: boolean }>({});
   const cameraY = useRef(CANVAS_HEIGHT - 200);
 
@@ -79,14 +69,11 @@ export function Game() {
     const handleKeyDown = (e: KeyboardEvent) => {
       keys.current[e.key] = true;
     };
-
     const handleKeyUp = (e: KeyboardEvent) => {
       keys.current[e.key] = false;
     };
-
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
@@ -94,9 +81,7 @@ export function Game() {
   }, []);
 
   /**
-   * **UPDATE FUNCTION**
-   * Handles game state updates, including player controls, car movements,
-   * power-up usage, collision detection, and game progression.
+   * UPDATE FUNCTION
    */
   const update = (deltaTime: number) => {
     if (!gameStarted || gameFinished) return;
@@ -108,7 +93,7 @@ export function Game() {
     else if (keys.current['ArrowRight']) playerCar.moveRight();
     else playerCar.stopLateralMovement();
 
-    // **NEW LOGIC: Apply friction when neither ArrowUp nor ArrowDown is pressed**
+    // Apply friction when not accelerating/braking
     if (!keys.current['ArrowUp'] && !keys.current['ArrowDown']) {
       playerCar.applyFriction();
     }
@@ -121,7 +106,7 @@ export function Game() {
       }
     }
 
-    // Update all cars
+    // Update cars
     playerCar.update(deltaTime, track.width);
     aiCars.forEach(car => {
       car.updateAI(track.width, playerCar.y, [...aiCars, playerCar, ...obstacles, ...powerUps, ...projectiles]);
@@ -143,10 +128,10 @@ export function Game() {
       }
     });
 
-    // Check collisions with obstacles and projectiles
+    // Check collisions with obstacles/projectiles
     const allObjects = [...aiCars, ...obstacles, ...projectiles.filter(p => p.active)];
     
-    // Check player collisions
+    // Player collisions
     allObjects.forEach(obj => {
       if (playerCar.checkCollision(obj)) {
         if (obj instanceof Projectile) {
@@ -160,7 +145,7 @@ export function Game() {
       }
     });
 
-    // Check AI car collisions
+    // AI car collisions
     aiCars.forEach(car => {
       allObjects.forEach(obj => {
         if (obj !== car && car.checkCollision(obj)) {
@@ -179,13 +164,13 @@ export function Game() {
     // Clean up inactive projectiles
     setProjectiles(prev => prev.filter(p => p.active));
 
-    // Update camera position to follow player
+    // Update camera position
     cameraY.current = playerCar.y - CANVAS_HEIGHT / 2;
 
     // Update track
     track.update(cameraY.current);
 
-    // Check for finish line
+    // Check finish line
     const allCars = [playerCar, ...aiCars];
     for (const car of allCars) {
       if (track.isFinished(car.y) && !gameFinished) {
@@ -197,8 +182,7 @@ export function Game() {
   };
 
   /**
-   * **DRAW FUNCTION**
-   * Handles rendering all game elements onto the canvas.
+   * DRAW FUNCTION
    */
   const draw = (ctx: CanvasRenderingContext2D) => {
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -210,32 +194,51 @@ export function Game() {
       projectiles.forEach(proj => proj.draw(ctx, cameraY.current));
       [...aiCars, playerCar].forEach(car => car.draw(ctx, cameraY.current));
 
-      // Draw UI
+      // =====================
+      // === UI & POSITION ===
+      // =====================
       ctx.fillStyle = '#fff';
       ctx.font = '24px Arial';
       ctx.textAlign = 'left';
-      
-      // Display Speed
+
+      // Speed
       ctx.fillText(`Speed: ${Math.floor(playerCar.speed * 30)}km/h`, 20, 40);
-      
-      // **ADDED:** Display "Reversing" message when speed is negative
+
+      // Reversing message
       if (playerCar.speed < 0) {
-        ctx.fillStyle = '#ffcc00'; // Optional: Different color for emphasis
+        ctx.fillStyle = '#ffcc00';
         ctx.fillText('Reversing', 20, 70);
-        ctx.fillStyle = '#fff'; // Reset to original color
+        ctx.fillStyle = '#fff';
       }
 
-      // Display Power-Up
+      // Power-up
       if (playerCar.currentPowerUp) {
         ctx.fillText(`Power-up: ${playerCar.currentPowerUp}`, 20, 100);
       }
 
-      // Display Recovery Status
+      // Recovery
       if (playerCar.crashed) {
         ctx.fillStyle = '#ff0000';
         ctx.fillText(`Recovering: ${Math.ceil(playerCar.recoveryTime / 1000)}s`, 20, 130);
-        ctx.fillStyle = '#fff'; // Reset to original color
+        ctx.fillStyle = '#fff';
       }
+
+      // **NEW**: Show player's current position in the race
+      // 1) Combine player + AI cars
+      const allCars = [playerCar, ...aiCars];
+      // 2) Sort them by 'y' ascending (lowest y = furthest ahead)
+      const sorted = allCars.slice().sort((a, b) => a.y - b.y);
+      // 3) Find player's index => position
+      const playerIndex = sorted.indexOf(playerCar);
+      const playerPosition = playerIndex + 1; // 1-based rank
+
+      // Optional: Convert numeric rank to "1st", "2nd", "3rd", etc.
+      const ordinal = getOrdinal(playerPosition);
+
+      // Draw position text
+      ctx.fillStyle = '#fff';
+      ctx.fillText(`Position: ${ordinal}`, 20, 160);
+
     } else if (!gameStarted) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -247,6 +250,7 @@ export function Game() {
       ctx.fillText('Use arrow keys to control your car', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
       ctx.fillText('Press SPACE to use power-ups', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 90);
       ctx.fillText('Collect power-ups and avoid obstacles!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 130);
+
     } else if (gameFinished) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -258,14 +262,12 @@ export function Game() {
       ctx.fillText('Press SPACE to Play Again', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
     }
   };
-  
+
+  // Use game loop
   useGameLoop(canvasRef, update, draw);
 
   /**
-   * **GAME RESET LOGIC**
-   * Resets the game state when the player presses the Spacebar after game start or finish.
-   * This includes repositioning cars, respawning obstacles and power-ups uniformly across the map,
-   * and clearing projectiles.
+   * GAME RESET LOGIC
    */
   useEffect(() => {
     const handleSpace = (e: KeyboardEvent) => {
@@ -276,40 +278,40 @@ export function Game() {
         playerCar.speed = 0;
         playerCar.crashed = false;
         playerCar.currentPowerUp = null;
-        
+
         // Reset AI cars
         aiCars.forEach((car, index) => {
-          const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Uniform distribution across width
-          const y = CANVAS_HEIGHT - 200 - index * 100; // Stagger AI cars vertically
+          const x = 40 + Math.random() * (CANVAS_WIDTH - 80);
+          const y = CANVAS_HEIGHT - 200 - index * 100;
           car.x = x;
           car.y = y;
           car.speed = 3 + Math.random() * 3;
           car.crashed = false;
           car.currentPowerUp = null;
         });
-        
-        // **RESET OBSTACLES TO SPAWN UNIFORMLY ACROSS THE MAP**
+
+        // Reset obstacles
         const newObstacles: Obstacle[] = [];
         for (let y = CANVAS_HEIGHT - 500; y > track.finishLine + 500; y -= OBSTACLE_SPACING) {
-          const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Uniform distribution across width
+          const x = 40 + Math.random() * (CANVAS_WIDTH - 80);
           const type = Math.random() < 0.7 ? 'rock' : 'oil';
           newObstacles.push(new Obstacle(x, y, type));
         }
         setObstacles(newObstacles);
-        
-        // **RESET POWER-UPS TO SPAWN UNIFORMLY ACROSS THE MAP**
+
+        // Reset power-ups
         const newPowerUps: PowerUp[] = [];
         for (let y = CANVAS_HEIGHT - 300; y > track.finishLine + 300; y -= POWERUP_SPACING) {
-          const x = 40 + Math.random() * (CANVAS_WIDTH - 80); // Uniform distribution across width
+          const x = 40 + Math.random() * (CANVAS_WIDTH - 80);
           const types: ('boost' | 'missile' | 'shield' | 'oil')[] = ['boost', 'missile', 'shield', 'oil'];
           const type = types[Math.floor(Math.random() * types.length)];
           newPowerUps.push(new PowerUp(x, y, type));
         }
         setPowerUps(newPowerUps);
-        
+
         // Clear projectiles
         setProjectiles([]);
-        
+
         // Reset camera
         cameraY.current = CANVAS_HEIGHT - 200;
         setGameFinished(false);
@@ -331,4 +333,19 @@ export function Game() {
       />
     </div>
   );
+}
+
+/**
+ * OPTIONAL HELPER FUNCTION:
+ * Convert numeric rank (1, 2, 3, 4...) to string with ordinal suffix.
+ */
+function getOrdinal(n: number): string {
+  if (n > 10 && n < 14) return `${n}th`;
+  const lastDigit = n % 10;
+  switch (lastDigit) {
+    case 1: return `${n}st`;
+    case 2: return `${n}nd`;
+    case 3: return `${n}rd`;
+    default: return `${n}th`;
+  }
 }
