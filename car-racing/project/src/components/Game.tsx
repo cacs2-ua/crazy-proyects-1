@@ -80,9 +80,6 @@ export function Game() {
     };
   }, []);
 
-  /**
-   * UPDATE FUNCTION
-   */
   const update = (deltaTime: number) => {
     if (!gameStarted || gameFinished) return;
 
@@ -201,43 +198,42 @@ export function Game() {
       ctx.font = '24px Arial';
       ctx.textAlign = 'left';
 
-      // Speed
+      // Speed (top-left corner)
       ctx.fillText(`Speed: ${Math.floor(playerCar.speed * 30)}km/h`, 20, 40);
 
-      // Reversing message
+      // Reversing message (top-left corner)
       if (playerCar.speed < 0) {
         ctx.fillStyle = '#ffcc00';
         ctx.fillText('Reversing', 20, 70);
         ctx.fillStyle = '#fff';
       }
 
-      // Power-up
+      // Power-up (top-left corner)
       if (playerCar.currentPowerUp) {
         ctx.fillText(`Power-up: ${playerCar.currentPowerUp}`, 20, 100);
       }
 
-      // Recovery
+      // Recovery (top-left corner)
       if (playerCar.crashed) {
         ctx.fillStyle = '#ff0000';
         ctx.fillText(`Recovering: ${Math.ceil(playerCar.recoveryTime / 1000)}s`, 20, 130);
         ctx.fillStyle = '#fff';
       }
 
-      // **NEW**: Show player's current position in the race
-      // 1) Combine player + AI cars
+      // **Calculate the player's rank**
       const allCars = [playerCar, ...aiCars];
-      // 2) Sort them by 'y' ascending (lowest y = furthest ahead)
       const sorted = allCars.slice().sort((a, b) => a.y - b.y);
-      // 3) Find player's index => position
       const playerIndex = sorted.indexOf(playerCar);
-      const playerPosition = playerIndex + 1; // 1-based rank
-
-      // Optional: Convert numeric rank to "1st", "2nd", "3rd", etc.
+      const playerPosition = playerIndex + 1;
       const ordinal = getOrdinal(playerPosition);
 
-      // Draw position text
+      // === NEW: Position in the top-center of the screen ===
+      ctx.save();
       ctx.fillStyle = '#fff';
-      ctx.fillText(`Position: ${ordinal}`, 20, 160);
+      ctx.font = '28px Arial';        // Slightly larger font if desired
+      ctx.textAlign = 'center';       // Center alignment
+      ctx.fillText(`Position: ${ordinal}`, CANVAS_WIDTH / 2, 40); 
+      ctx.restore();
 
     } else if (!gameStarted) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
@@ -336,7 +332,6 @@ export function Game() {
 }
 
 /**
- * OPTIONAL HELPER FUNCTION:
  * Convert numeric rank (1, 2, 3, 4...) to string with ordinal suffix.
  */
 function getOrdinal(n: number): string {
