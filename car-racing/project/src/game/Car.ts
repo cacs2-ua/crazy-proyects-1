@@ -1,7 +1,15 @@
-import { Obstacle } from './Obstacle';        // NEW: Import Obstacle
-import { PowerUp } from './PowerUp';          // NEW: Import PowerUp
-import { Projectile } from './Projectile';    // NEW: Import Projectile
+/*************************************************************
+ * FILE: game/Car.ts
+ * 
+ * CHANGES MADE:
+ * 1) Added `maxReverseSpeed` property to limit reverse speed.
+ * 2) Modified the `brake()` method to allow speed to decrease below zero.
+ * 3) Updated the `update()` method to handle reverse movement.
+ *************************************************************/
 
+import { Obstacle } from './Obstacle';        // Ensure these imports are present
+import { PowerUp } from './PowerUp';
+import { Projectile } from './Projectile';
 
 export class Car {
   x: number;
@@ -16,6 +24,7 @@ export class Car {
   crashed: boolean;
   recoveryTime: number;
   maxSpeed: number;
+  maxReverseSpeed: number;                   // NEW: Maximum reverse speed
   currentPowerUp: string | null;
   shieldActive: boolean;
   boostTime: number;
@@ -25,6 +34,7 @@ export class Car {
     this.x = x;
     this.y = y;
     this.maxSpeed = isPlayer ? 8 : 10;
+    this.maxReverseSpeed = isPlayer ? 3 : 5; // NEW: Set max reverse speed based on player or AI
     this.speed = isPlayer ? 0 : 3 + Math.random() * 3;
     this.lateralSpeed = 0;
     this.width = 40;
@@ -51,8 +61,12 @@ export class Car {
 
   brake() {
     if (!this.crashed) {
-      this.speed -= 0.2;
-      if (this.speed < 0) this.speed = 0;
+      this.speed -= 0.2; // Decrease speed
+
+      // NEW: Allow speed to go below zero up to maxReverseSpeed
+      if (this.speed < -this.maxReverseSpeed) {
+        this.speed = -this.maxReverseSpeed;
+      }
     }
   }
 
@@ -75,10 +89,10 @@ export class Car {
   }
 
   crash() {
-    // Solo choca si NO está ya chocado, NO tiene escudo y NO está en tiempo invulnerable.
+    // Only crash if NOT already crashed, NO active shield, and NOT invulnerable.
     if (!this.crashed && !this.shieldActive && this.invulnerableTime <= 0) {
       this.crashed = true;
-      this.recoveryTime = 2000; // 2 segundos de recuperación
+      this.recoveryTime = 2000; // 2 seconds
       this.speed = 0;
       this.currentPowerUp = null;
       this.boostTime = 0;
@@ -86,7 +100,7 @@ export class Car {
   }
 
   checkCollision(other: Car | Obstacle | PowerUp | Projectile): boolean {
-    // Si está en tiempo invulnerable, no colisiona.
+    // If invulnerable, skip collisions
     if (this.invulnerableTime > 0) return false;
     
     return (
@@ -103,20 +117,21 @@ export class Car {
     let projectile = null;
     switch (this.currentPowerUp) {
       case 'boost':
-        this.boostTime = 3000; // 3 segundos de boost
+        this.boostTime = 3000; // 3 seconds
         break;
       case 'missile':
         projectile = new Projectile(this.x, this.y - this.height, 'missile', this);
         break;
       case 'shield':
         this.shieldActive = true;
-        this.invulnerableTime = 5000; // 5 segundos de shield
+        this.invulnerableTime = 5000; // 5 seconds
         break;
       case 'oil':
         projectile = new Projectile(this.x, this.y + this.height, 'oil', this);
         break;
     }
     
+    // Clear the power-up once used
     this.currentPowerUp = null;
     return projectile;
   }
@@ -126,7 +141,7 @@ export class Car {
       const margin = 100;
       const lookAheadDistance = 200;
       
-      // Comprobar posible colisión cercana
+      // Check possible collision ahead
       let potentialCollision = false;
       obstacles.forEach(obstacle => {
         if (obstacle !== this) {
@@ -136,7 +151,7 @@ export class Car {
             Math.abs(obstacle.x - this.x) < 80
           ) {
             potentialCollision = true;
-            // Elegir nuevo target para esquivar
+            // Choose a new targetX to avoid
             this.targetX = obstacle.x < this.x
               ? Math.min(this.x + 100, trackWidth - margin)
               : Math.max(this.x - 100, margin);
@@ -144,12 +159,12 @@ export class Car {
         }
       });
 
-      // Si no hay peligro inmediato, ocasionalmente cambiar de carril
+      // Occasionally change lanes if no immediate danger
       if (!potentialCollision && Math.random() < 0.01) {
         this.targetX = margin + Math.random() * (trackWidth - 2 * margin);
       }
 
-      // Moverse hacia target
+      // Move towards targetX
       if (this.x < this.targetX - 5) {
         this.lateralSpeed = 3;
       } else if (this.x > this.targetX + 5) {
@@ -158,16 +173,16 @@ export class Car {
         this.lateralSpeed = 0;
       }
 
-      // Mantenerse dentro de los márgenes de la pista
+      // Keep car in track bounds
       if (this.x < margin) this.targetX = margin;
       if (this.x > trackWidth - margin) this.targetX = trackWidth - margin;
 
-      // Usar power-ups automáticamente
+      // Use power-ups automatically
       if (this.currentPowerUp && Math.random() < 0.1) {
         this.usePowerUp();
       }
 
-      // Aumentar velocidad aleatoriamente
+      // Randomly boost speed
       if (Math.random() < 0.05) {
         this.speed = Math.min(this.maxSpeed * (this.boostTime > 0 ? 1.5 : 1), this.speed + 0.5);
       }
@@ -175,21 +190,23 @@ export class Car {
   }
 
   update(deltaTime: number, trackWidth: number) {
-    // Actualizar tiempos
+    // Update crash recovery
     if (this.crashed) {
       this.recoveryTime -= deltaTime;
       if (this.recoveryTime <= 0) {
         this.crashed = false;
         this.speed = this.isPlayer ? 0 : 2;
-        // NUEVO: invulnerable tras recovery
-        this.invulnerableTime = 500; // por ejemplo, 0.5s de invulnerabilidad
+        // Temporary invulnerability after recovery
+        this.invulnerableTime = 500; // 0.5 seconds
       }
     }
 
+    // Update boost
     if (this.boostTime > 0) {
       this.boostTime -= deltaTime;
     }
 
+    // Update shield/invulnerability
     if (this.invulnerableTime > 0) {
       this.invulnerableTime -= deltaTime;
       if (this.invulnerableTime <= 0) {
@@ -197,11 +214,11 @@ export class Car {
       }
     }
 
+    // If not crashed, move the car
     if (!this.crashed) {
-      // Actualizar posición horizontal
+      // Horizontal movement
       this.x += this.lateralSpeed;
-      
-      // Mantener el auto dentro de la pista
+      // Keep car within bounds
       if (this.x < this.width / 2) {
         this.x = this.width / 2;
         if (!this.isPlayer) this.crash();
@@ -211,8 +228,8 @@ export class Car {
         if (!this.isPlayer) this.crash();
       }
 
-      // Actualizar posición vertical (avanza en Y)
-      this.y -= this.speed;
+      // Vertical movement
+      this.y -= this.speed; // If speed is negative, y increases (reverse movement)
     }
   }
 
@@ -222,7 +239,7 @@ export class Car {
     ctx.save();
     ctx.translate(this.x, screenY);
 
-    // Dibujar escudo si está activo
+    // Draw shield if active
     if (this.shieldActive) {
       ctx.strokeStyle = '#00ffff';
       ctx.lineWidth = 2;
@@ -232,27 +249,27 @@ export class Car {
     }
 
     if (this.crashed) {
-      // Carro chocado
+      // Tilt the car to show it crashed
       ctx.rotate(Math.PI / 8);
       ctx.fillStyle = '#666';
     } else {
       ctx.fillStyle = this.color;
     }
 
-    // Carro
+    // Car body
     ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
     
     if (!this.crashed) {
-      // Parabrisas
+      // Windshield
       ctx.fillStyle = '#333';
       ctx.fillRect(-this.width / 4, -this.height / 4, this.width / 2, this.height / 3);
       
-      // Faros
+      // Headlights
       ctx.fillStyle = '#ffff00';
       ctx.fillRect(-this.width / 3, -this.height / 2, 10, 5);
       ctx.fillRect(this.width / 3 - 10, -this.height / 2, 10, 5);
 
-      // Efecto boost
+      // Boost effect
       if (this.boostTime > 0) {
         ctx.fillStyle = '#ff7700';
         ctx.beginPath();
@@ -263,7 +280,7 @@ export class Car {
         ctx.fill();
       }
     } else {
-      // Efectos de choque
+      // Crash lines
       ctx.strokeStyle = '#ff0000';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -274,7 +291,7 @@ export class Car {
       ctx.stroke();
     }
 
-    // Indicador de power-up activo
+    // Power-up text (if any)
     if (this.currentPowerUp) {
       ctx.fillStyle = '#fff';
       ctx.font = '14px Arial';
