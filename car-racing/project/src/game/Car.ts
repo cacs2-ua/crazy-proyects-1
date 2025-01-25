@@ -93,7 +93,6 @@ export class Car {
       this.crashed = true;
       this.recoveryTime = 2000; // 2 seconds
       this.speed = 0;
-      this.currentPowerUp = null;
       this.boostTime = 0;
     }
   }
