@@ -8,8 +8,8 @@ import { Projectile } from '../game/Projectile';
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
-const OBSTACLE_SPACING = 500; // Distance between consecutive obstacles vertically
-const POWERUP_SPACING = 800; // Distance between consecutive power-ups vertically
+const OBSTACLE_SPACING = 200; // Distance between consecutive obstacles vertically
+const POWERUP_SPACING = 500; // Distance between consecutive power-ups vertically
 
 export function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
