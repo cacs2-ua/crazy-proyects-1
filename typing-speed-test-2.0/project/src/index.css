@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes neon-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.neon-text {
+  text-shadow: 
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #fff,
+    0 0 42px #0fa,
+    0 0 82px #0fa,
+    0 0 92px #0fa,
+    0 0 102px #0fa,
+    0 0 151px #0fa;
+  animation: neon-pulse 1.5s ease-in-out infinite;
+}
+
+.neon-text-cyan {
+  text-shadow: 
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #fff,
+    0 0 42px #0ff,
+    0 0 82px #0ff,
+    0 0 92px #0ff;
+}
+
+.neon-text-green {
+  text-shadow: 
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #fff,
+    0 0 42px #0fa,
+    0 0 82px #0fa,
+    0 0 92px #0fa;
+}
+
+.neon-text-red {
+  text-shadow: 
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #fff,
+    0 0 42px #f44,
+    0 0 82px #f44,
+    0 0 92px #f44;
+}
+
+.neon-box {
+  box-shadow: 
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #fff,
+    0 0 42px #0fa,
+    0 0 82px #0fa,
+    0 0 92px #0fa;
+}
+
+.neon-border {
+  box-shadow: 
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 20px #0fa,
+    0 0 40px #0fa;
+}
+
+.neon-button {
+  box-shadow: 
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 20px #f0f,
+    0 0 40px #f0f;
+  text-shadow: 
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #fff,
+    0 0 42px #f0f;
+}
+
+.neon-stats {
+  box-shadow: 
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 20px #0ff,
+    0 0 40px #0ff;
+  text-shadow: 
+    0 0 7px #fff,
+    0 0 10px #fff,
+    0 0 21px #0ff;
+}
