@@ -202,6 +202,7 @@ export function Game() {
       ctx.fillText('Press SPACE to Play Again', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
     }
   };
+  
 
   useGameLoop(canvasRef, update, draw);
 
