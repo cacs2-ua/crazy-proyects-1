@@ -129,7 +129,7 @@ export function drawKnife(ctx: CanvasRenderingContext2D, knife: Knife) {
 }
 
 export function checkCollision(newKnifeAngle: number, stuckKnives: Knife[]): boolean {
-  const collisionAngle = Math.PI / 12; // 15 degrees in radians
+  const collisionAngle = Math.PI / 48; //
   
   return stuckKnives.some(knife => {
     const angleDiff = Math.abs(newKnifeAngle - knife.stickPosition) % (Math.PI * 2);
