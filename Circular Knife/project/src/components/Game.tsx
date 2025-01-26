@@ -11,16 +11,16 @@ const TARGET_RADIUS = 180;
 const KNIFE_HEIGHT = 50;
 const KNIFE_WIDTH = 8;
 const INITIAL_ROTATION_SPEED = 0.01;
-const SPEED_INCREMENT = 0.0075; // Slower increment for difficulty
+const SPEED_INCREMENT = 0.015; // Slower increment for difficulty
 const THROW_SPEED = 20;
 const OUTER_RING_WIDTH = 40; // Width of the outer ring where knives can stick
 const STICK_OFFSET = 92.5;     // Distance from the outer edge where knives will stick
 
-// IMPORTANT: Where the splatter duration (less than 1 second) is set
-const BLOOD_SPLATTER_DURATION = 700; // in milliseconds, ~0.7 seconds
 
-// IMPORTANT: Where the color of the splatter is set (dark red)
-const BLOOD_SPLATTER_COLOR = 'rgba(41, 1, 1, 0.8)'; // #8B0000 with some opacity
+const BLOOD_SPLATTER_DURATION = 700; 
+
+
+const BLOOD_SPLATTER_COLOR = 'rgba(41, 1, 1, 0.8)';
 
 interface BloodEffect {
   x: number;
@@ -208,7 +208,7 @@ export default function Game() {
         };
         gameState.current.knives.push(newKnife);
 
-        // ---- NEW: Register a blood splatter effect at the knife's impact location
+        // Register a blood splatter effect at the knife's impact location
         setBloodEffects((prev) => [
           ...prev,
           { 
@@ -248,8 +248,8 @@ export default function Game() {
     // Draw center image if loaded
     const centerImg = centerImgRef.current;
     if (centerImg && centerImg.complete) {
-      const imgWidth = 100;  // Adjust size as needed
-      const imgHeight = 100; // Adjust size as needed
+      const imgWidth = 100;  
+      const imgHeight = 100;
       ctx.drawImage(
         centerImg,
         target.x - imgWidth / 2,
@@ -290,7 +290,7 @@ export default function Game() {
         {gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm animate-fade-in">
             <h2 className="text-6xl font-bold mb-6 text-red-600 drop-shadow-lg animate-pulse">
-              <strong>Fin del juego</strong>
+              <strong>Fin de la Matanza</strong>
             </h2>
             <p className="text-2xl mb-2 text-white drop-shadow-lg">
               <strong>Puntuación: {score}</strong>
@@ -315,7 +315,7 @@ export default function Game() {
           <strong>Puntuación máxima: {highScore}</strong>
         </p>
         <p className="text-lg opacity-90 text-red-300 drop-shadow-lg">
-          <strong>Haz click o presiona espacio para lanzar los cuchillos</strong>
+          <strong>Haz click o presiona espacio para lanzar los cuchillos y DESCUARTIZAR a la UA ;3</strong>
         </p>
       </div>
     </div>

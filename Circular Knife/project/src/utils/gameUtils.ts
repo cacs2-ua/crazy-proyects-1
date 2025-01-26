@@ -6,7 +6,6 @@ export function drawTarget(ctx: CanvasRenderingContext2D, target: Target) {
   ctx.translate(target.x, target.y);
   ctx.rotate(target.rotation);
 
-  // ---- CHANGED: Create a bloody red outer glow
   const glowGradient = ctx.createRadialGradient(0, 0, target.radius - 15, 0, 0, target.radius + 20);
   glowGradient.addColorStop(0, 'rgba(255, 0, 0, 0.4)');
   glowGradient.addColorStop(1, 'rgba(139, 0, 0, 0)');
@@ -15,7 +14,6 @@ export function drawTarget(ctx: CanvasRenderingContext2D, target: Target) {
   ctx.fillStyle = glowGradient;
   ctx.fill();
 
-  // ---- CHANGED: Replacing the wooden texture with a darker, blood-soaked gradient
   const bloodGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, target.radius);
   bloodGradient.addColorStop(0, '#4A0404');    // dark blood red
   bloodGradient.addColorStop(0.4, '#650101'); // deeper red
@@ -26,7 +24,6 @@ export function drawTarget(ctx: CanvasRenderingContext2D, target: Target) {
   ctx.fillStyle = bloodGradient;
   ctx.fill();
 
-  // ---- CHANGED: Add random "blood splatter" arcs
   const splatterCount = 10;
   for (let i = 0; i < splatterCount; i++) {
     const angle = Math.random() * Math.PI * 2;
@@ -40,7 +37,7 @@ export function drawTarget(ctx: CanvasRenderingContext2D, target: Target) {
     ctx.restore();
   }
 
-  // ---- CHANGED: Dark ring details around the target
+
   const ringColors = ['#330000', '#4A0404', '#2e0101'];
   for (let i = 1; i <= 3; i++) {
     const ringRadius = target.radius * (1 - i * 0.25);
@@ -60,7 +57,6 @@ export function drawTarget(ctx: CanvasRenderingContext2D, target: Target) {
     ctx.stroke();
   }
 
-  // ---- CHANGED: Center point (dark red)
   ctx.beginPath();
   ctx.arc(0, 0, 6, 0, Math.PI * 2);
   ctx.fillStyle = '#660000';
@@ -133,7 +129,7 @@ export function drawKnife(ctx: CanvasRenderingContext2D, knife: Knife) {
 
 // Decreased collision angle for tighter placement
 export function checkCollision(newKnifeAngle: number, stuckKnives: Knife[]): boolean {
-  const collisionAngle = Math.PI / 40; // 3.75 degrees
+  const collisionAngle = Math.PI / 32;
   return stuckKnives.some(knife => {
     const angleDiff = Math.abs(newKnifeAngle - (knife.stickPosition || 0)) % (Math.PI * 2);
     return angleDiff < collisionAngle || angleDiff > (Math.PI * 2 - collisionAngle);
