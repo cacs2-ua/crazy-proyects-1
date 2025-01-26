@@ -8,10 +8,10 @@ const TARGET_RADIUS = 180;
 const KNIFE_HEIGHT = 50;
 const KNIFE_WIDTH = 8;
 const INITIAL_ROTATION_SPEED = 0.01;
-const SPEED_INCREMENT = 0.0030;
+const SPEED_INCREMENT = 0.0075;  // Slower increment for difficulty
 const THROW_SPEED = 20;
 const OUTER_RING_WIDTH = 40; // Width of the outer ring where knives can stick
-const STICK_OFFSET = -55; // Distance from the outer edge where knives will stick
+const STICK_OFFSET = -55;    // Distance from the outer edge where knives will stick
 
 export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -69,17 +69,17 @@ export default function Game() {
   const updateGame = (ctx: CanvasRenderingContext2D) => {
     const { target, knives, throwingKnife } = gameState.current;
 
-    // Clear canvas with a gradient background
+    // ---- CHANGED: Dark, bloody gradient for background
     const bgGradient = ctx.createLinearGradient(0, 0, 0, CANVAS_SIZE);
-    bgGradient.addColorStop(0, '#1a1a2e');
-    bgGradient.addColorStop(1, '#16213e');
+    bgGradient.addColorStop(0, '#0d0d0d');      // near-black
+    bgGradient.addColorStop(1, '#330000');      // deep red/burgundy
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
     // Update target rotation
     target.rotation += target.rotationSpeed;
 
-    // Draw target
+    // Draw target (bloody style in gameUtils)
     drawTarget(ctx, target);
 
     // Update and draw stuck knives
@@ -110,8 +110,7 @@ export default function Game() {
           Math.pow(throwingKnife.y - target.y, 2)
       );
 
-      // CHANGED SECTION: Adjust collision detection to trigger earlier
-      const collisionMargin = STICK_OFFSET; // Using STICK_OFFSET to determine early collision
+      const collisionMargin = STICK_OFFSET;
       const outerRingDistance = target.radius - collisionMargin;
       const innerRingDistance = target.radius - OUTER_RING_WIDTH - collisionMargin;
 
@@ -121,10 +120,8 @@ export default function Game() {
       ) {
         // Calculate angle of impact
         const impactAngle =
-          Math.atan2(
-            throwingKnife.y - target.y,
-            throwingKnife.x - target.x
-          ) - target.rotation;
+          Math.atan2(throwingKnife.y - target.y, throwingKnife.x - target.x) -
+          target.rotation;
 
         // Check collision with other knives
         const collision = checkCollision(impactAngle, knives);
@@ -137,7 +134,7 @@ export default function Game() {
           return;
         }
 
-        // Stick knife to target at STICK_DISTANCE
+        // Stick knife to target
         const STICK_DISTANCE = target.radius - STICK_OFFSET;
         const newKnifeX =
           target.x + STICK_DISTANCE * Math.cos(target.rotation + impactAngle);
@@ -196,7 +193,7 @@ export default function Game() {
   }, [gameOver]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 to-blue-900 text-white">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-black to-red-900 text-white">
       <div className="relative shadow-2xl rounded-lg overflow-hidden">
         <canvas
           ref={canvasRef}
@@ -207,12 +204,14 @@ export default function Game() {
         />
         {gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm">
-            <h2 className="text-6xl font-bold mb-6 text-red-500">Game Over!</h2>
+            <h2 className="text-6xl font-bold mb-6 text-red-600 drop-shadow-lg">
+              Game Over!
+            </h2>
             <p className="text-2xl mb-2">Score: {score}</p>
             <p className="text-2xl mb-6">High Score: {highScore}</p>
             <button
               onClick={resetGame}
-              className="px-8 py-3 bg-red-600 hover:bg-red-700 rounded-lg text-xl font-semibold transition-all transform hover:scale-105 hover:shadow-lg"
+              className="px-8 py-3 bg-red-700 hover:bg-red-800 rounded-lg text-xl font-semibold transition-all transform hover:scale-105 hover:shadow-lg"
             >
               Play Again
             </button>
@@ -222,7 +221,7 @@ export default function Game() {
       <div className="mt-8 text-center">
         <p className="text-3xl font-bold mb-2">Score: {score}</p>
         <p className="text-2xl mb-4">High Score: {highScore}</p>
-        <p className="text-lg opacity-80">
+        <p className="text-lg opacity-90">
           Click or press SPACE to throw knives
         </p>
       </div>

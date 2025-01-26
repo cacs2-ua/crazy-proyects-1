@@ -6,59 +6,64 @@ export function drawTarget(ctx: CanvasRenderingContext2D, target: Target) {
   ctx.translate(target.x, target.y);
   ctx.rotate(target.rotation);
 
-  // Draw outer glow
-  const glowGradient = ctx.createRadialGradient(0, 0, target.radius - 10, 0, 0, target.radius + 10);
-  glowGradient.addColorStop(0, 'rgba(255, 165, 0, 0.2)');
-  glowGradient.addColorStop(1, 'rgba(255, 165, 0, 0)');
+  // ---- CHANGED: Create a bloody red outer glow
+  const glowGradient = ctx.createRadialGradient(0, 0, target.radius - 15, 0, 0, target.radius + 20);
+  glowGradient.addColorStop(0, 'rgba(255, 0, 0, 0.4)');
+  glowGradient.addColorStop(1, 'rgba(139, 0, 0, 0)');
   ctx.beginPath();
-  ctx.arc(0, 0, target.radius + 10, 0, Math.PI * 2);
+  ctx.arc(0, 0, target.radius + 20, 0, Math.PI * 2);
   ctx.fillStyle = glowGradient;
   ctx.fill();
 
-  // Draw wooden texture with enhanced gradient
-  const woodGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, target.radius);
-  woodGradient.addColorStop(0, '#A0522D');
-  woodGradient.addColorStop(0.6, '#8B4513');
-  woodGradient.addColorStop(1, '#654321');
-  
+  // ---- CHANGED: Replacing the wooden texture with a darker, blood-soaked gradient
+  const bloodGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, target.radius);
+  bloodGradient.addColorStop(0, '#4A0404');    // dark blood red
+  bloodGradient.addColorStop(0.4, '#650101'); // deeper red
+  bloodGradient.addColorStop(1, '#2e0101');   // near-black red
+
   ctx.beginPath();
   ctx.arc(0, 0, target.radius, 0, Math.PI * 2);
-  ctx.fillStyle = woodGradient;
+  ctx.fillStyle = bloodGradient;
   ctx.fill();
 
-  // Draw wood grain texture
-  for (let i = 0; i < 8; i++) {
+  // ---- CHANGED: Add random "blood splatter" arcs
+  const splatterCount = 10;
+  for (let i = 0; i < splatterCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = target.radius * (0.2 + Math.random() * 0.8);
+    ctx.save();
+    ctx.rotate(angle);
     ctx.beginPath();
-    ctx.arc(0, 0, target.radius * (Math.random() * 0.8 + 0.2), 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(101, 67, 33, 0.1)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    ctx.arc(radius, 0, 5 + Math.random() * 15, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(139, 0, 0, ${0.1 + Math.random() * 0.4})`;
+    ctx.fill();
+    ctx.restore();
   }
 
-  // Draw target rings
-  const ringColors = ['#DEB887', '#8B4513', '#A0522D'];
+  // ---- CHANGED: Dark ring details around the target
+  const ringColors = ['#330000', '#4A0404', '#2e0101'];
   for (let i = 1; i <= 3; i++) {
-    const radius = target.radius * (1 - i * 0.25);
-    
-    // Draw ring shadow
+    const ringRadius = target.radius * (1 - i * 0.25);
+
+    // Add a subtle shadow
     ctx.beginPath();
-    ctx.arc(2, 2, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.arc(2, 2, ringRadius, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.lineWidth = 4;
     ctx.stroke();
 
-    // Draw main ring
+    // Draw the ring
     ctx.beginPath();
-    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.arc(0, 0, ringRadius, 0, Math.PI * 2);
     ctx.strokeStyle = ringColors[i - 1];
     ctx.lineWidth = 4;
     ctx.stroke();
   }
 
-  // Add center point
+  // ---- CHANGED: Center point (dark red)
   ctx.beginPath();
-  ctx.arc(0, 0, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#4A0404';
+  ctx.arc(0, 0, 6, 0, Math.PI * 2);
+  ctx.fillStyle = '#660000';
   ctx.fill();
 
   ctx.restore();
@@ -70,7 +75,7 @@ let knifeImage: HTMLImageElement | null = null;
 const loadKnifeImage = () => {
   return new Promise<void>((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = "anonymous"; // Enable CORS
+    img.crossOrigin = 'anonymous'; // Enable CORS
     img.src = knifeImg;
     
     img.onload = () => {
@@ -80,7 +85,7 @@ const loadKnifeImage = () => {
     
     img.onerror = () => {
       console.error('Failed to load knife image');
-      // Fallback to drawing a knife
+      // Fallback to drawing a simple knife
       reject();
     };
   });
@@ -97,42 +102,40 @@ export function drawKnife(ctx: CanvasRenderingContext2D, knife: Knife) {
   ctx.rotate(knife.rotation);
 
   if (knifeImage && knifeImage.complete) {
-    // Draw the knife image
-    const scale = 0.15; // Smaller scale for better proportions
+    // Draw the "bloody" knife image
+    const scale = 0.15;
     const width = knifeImage.width * scale;
     const height = knifeImage.height * scale;
     
     ctx.drawImage(
       knifeImage,
-      -width / 2,  // Center horizontally
-      -height + 10, // Position the tip at the rotation point
+      -width / 2,
+      -height + 10,
       width,
       height
     );
   } else {
-    // Fallback to drawing a knife if image fails to load
-    // Draw blade
+    // Fallback to a basic knife if the image fails
     ctx.beginPath();
     ctx.moveTo(-4, 0);
     ctx.lineTo(4, 0);
     ctx.lineTo(0, -40);
     ctx.closePath();
-    ctx.fillStyle = '#silver';
+    ctx.fillStyle = '#a30000';
     ctx.fill();
     
-    // Draw handle
-    ctx.fillStyle = '#8B4513';
+    ctx.fillStyle = '#4A0404';
     ctx.fillRect(-5, 0, 10, 15);
   }
 
   ctx.restore();
 }
 
+// Decreased collision angle for tighter placement
 export function checkCollision(newKnifeAngle: number, stuckKnives: Knife[]): boolean {
-  const collisionAngle = Math.PI / 48; //
-  
+  const collisionAngle = Math.PI / 48; // 3.75 degrees
   return stuckKnives.some(knife => {
-    const angleDiff = Math.abs(newKnifeAngle - knife.stickPosition) % (Math.PI * 2);
+    const angleDiff = Math.abs(newKnifeAngle - (knife.stickPosition || 0)) % (Math.PI * 2);
     return angleDiff < collisionAngle || angleDiff > (Math.PI * 2 - collisionAngle);
   });
 }
