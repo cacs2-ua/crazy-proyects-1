@@ -8,7 +8,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#0a1128] flex flex-col items-center justify-center">
       <div className="mb-4">
-        <h1 className="text-3xl font-bold text-white mb-2">Doodle Jump Clone</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">Tux Jump!!🐧🐧</h1>
         <p className="text-gray-300 text-center">
           Use ← → arrows to move<br />
           {gameState.gameOver && 'Press SPACE to restart'}

@@ -2,13 +2,12 @@ import { useEffect, useRef } from 'react';
 import { Platform, Player, PowerUp, Enemy, GameState } from '../types/game';
 
 const GRAVITY = 0.5;
-const JUMP_FORCE = -15; // Reduced from -15 for slower jumps
+const JUMP_FORCE = -15;
 const MOVE_SPEED = 5;
 const PLATFORM_COUNT = 10;
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 600;
 
-// Store star positions to prevent flickering
 const stars = Array.from({ length: 50 }, () => ({
   x: Math.random() * CANVAS_WIDTH,
   y: Math.random() * CANVAS_HEIGHT,
@@ -28,7 +27,7 @@ export const useGameLoop = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     isJumping: false,
     hasShield: false,
     direction: 1,
-    highestPlatform: CANVAS_HEIGHT, // Track the highest platform reached
+    highestPlatform: CANVAS_HEIGHT,
   });
 
   const platformsRef = useRef<Platform[]>([]);
