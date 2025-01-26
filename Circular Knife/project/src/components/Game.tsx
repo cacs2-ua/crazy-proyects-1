@@ -290,23 +290,23 @@ export default function Game() {
         {gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm animate-fade-in">
             <h2 className="text-6xl font-bold mb-6 text-red-600 drop-shadow-lg animate-pulse">
-              <strong>La UA ha muerto</strong>
+              <strong>La UA Ha Muerto</strong>
             </h2>
             <p className="text-3xl opacity-90 text-red-300 drop-shadow-lg">
-              <strong>Y Nosotros La hemos matado</strong>
+              <strong>Y Nosotros La Hemos Matado</strong>
             </p>
             <br></br>
             <p className="text-2xl mb-2 text-white drop-shadow-lg">
               <strong>Puntuación: {score}</strong>
             </p>
             <p className="text-2xl mb-6 text-white drop-shadow-lg">
-              <strong>Puntuación máxima: {highScore}</strong>
+              <strong>Puntuación Máxima: {highScore}</strong>
             </p>
             <button
               onClick={resetGame}
               className="px-8 py-3 bg-red-700 hover:bg-red-800 rounded-lg text-xl font-semibold text-white border-2 border-red-900 shadow-lg transform hover:scale-105 hover:shadow-2xl transition duration-300 ease-in-out"
             >
-              <strong>Reventar a la UA de nuevo</strong>
+              <strong>Reventar a la UA de Nuevo</strong>
             </button>
           </div>
         )}
