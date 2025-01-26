@@ -14,7 +14,19 @@ const INITIAL_ROTATION_SPEED = 0.01;
 const SPEED_INCREMENT = 0.0075; // Slower increment for difficulty
 const THROW_SPEED = 20;
 const OUTER_RING_WIDTH = 40; // Width of the outer ring where knives can stick
-const STICK_OFFSET = 70;    // Distance from the outer edge where knives will stick
+const STICK_OFFSET = 92.5;     // Distance from the outer edge where knives will stick
+
+// IMPORTANT: Where the splatter duration (less than 1 second) is set
+const BLOOD_SPLATTER_DURATION = 700; // in milliseconds, ~0.7 seconds
+
+// IMPORTANT: Where the color of the splatter is set (dark red)
+const BLOOD_SPLATTER_COLOR = 'rgba(41, 1, 1, 0.8)'; // #8B0000 with some opacity
+
+interface BloodEffect {
+  x: number;
+  y: number;
+  startTime: number;
+}
 
 export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -28,6 +40,9 @@ export default function Game() {
 
   // Store the loaded image in a ref so we can draw it once it's ready
   const centerImgRef = useRef<HTMLImageElement | null>(null);
+
+  // Array of blood effects
+  const [bloodEffects, setBloodEffects] = useState<BloodEffect[]>([]);
 
   // Load the center image once in a useEffect
   useEffect(() => {
@@ -78,9 +93,41 @@ export default function Game() {
         rotationSpeed: INITIAL_ROTATION_SPEED
       }
     };
+    setBloodEffects([]); // Clear existing blood splatters
     setGameOver(false);
     setScore(0);
   };
+
+  // Function to draw all active blood splatters
+  function drawBloodEffects(ctx: CanvasRenderingContext2D) {
+    const now = Date.now();
+    // Filter out splatters that exceed the BLOOD_SPLATTER_DURATION
+    const activeSplatter = bloodEffects.filter(
+      (effect) => now - effect.startTime < BLOOD_SPLATTER_DURATION
+    );
+
+    // Update state with only the active ones
+    if (activeSplatter.length !== bloodEffects.length) {
+      setBloodEffects(activeSplatter);
+    }
+
+    // Draw each active splatter
+    activeSplatter.forEach((splatter) => {
+      const lifeProgress = (now - splatter.startTime) / BLOOD_SPLATTER_DURATION; 
+      const alpha = 1.0 - lifeProgress; // fade out over time
+
+      // Simple circle for the blood effect, you could do arcs or random shapes
+      ctx.save();
+      ctx.beginPath();
+      ctx.fillStyle = BLOOD_SPLATTER_COLOR.replace(
+        '0.8',
+        (0.8 * alpha).toString()
+      ); 
+      ctx.arc(splatter.x, splatter.y, 20, 0, Math.PI * 2); 
+      ctx.fill();
+      ctx.restore();
+    });
+  }
 
   const updateGame = (ctx: CanvasRenderingContext2D) => {
     const { target, knives, throwingKnife } = gameState.current;
@@ -120,8 +167,8 @@ export default function Game() {
       throwingKnife.y -= THROW_SPEED;
 
       const distanceToCenter = Math.sqrt(
-        Math.pow(throwingKnife.x - target.x, 2) + 
-        Math.pow(throwingKnife.y - target.y, 2)
+        Math.pow(throwingKnife.x - target.x, 2) +
+          Math.pow(throwingKnife.y - target.y, 2)
       );
 
       const collisionMargin = STICK_OFFSET;
@@ -133,10 +180,8 @@ export default function Game() {
         distanceToCenter >= innerRingDistance
       ) {
         const impactAngle =
-          Math.atan2(
-            throwingKnife.y - target.y,
-            throwingKnife.x - target.x
-          ) - target.rotation;
+          Math.atan2(throwingKnife.y - target.y, throwingKnife.x - target.x) -
+          target.rotation;
 
         // Check collision
         const collision = checkCollision(impactAngle, knives);
@@ -163,6 +208,16 @@ export default function Game() {
         };
         gameState.current.knives.push(newKnife);
 
+        // ---- NEW: Register a blood splatter effect at the knife's impact location
+        setBloodEffects((prev) => [
+          ...prev,
+          { 
+            x: newKnifeX, 
+            y: newKnifeY - 42.5, 
+            startTime: Date.now() 
+          }
+        ]);
+
         // Reset throwing knife
         gameState.current.throwingKnife = {
           x: CANVAS_SIZE / 2,
@@ -186,6 +241,9 @@ export default function Game() {
 
     // Draw throwing knife
     drawKnife(ctx, throwingKnife);
+
+    // Draw the blood splatter effects
+    drawBloodEffects(ctx);
 
     // Draw center image if loaded
     const centerImg = centerImgRef.current;
@@ -232,32 +290,32 @@ export default function Game() {
         {gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm animate-fade-in">
             <h2 className="text-6xl font-bold mb-6 text-red-600 drop-shadow-lg animate-pulse">
-              <strong>Game Over!</strong>
+              <strong>Fin del juego</strong>
             </h2>
             <p className="text-2xl mb-2 text-white drop-shadow-lg">
-              <strong>Score: {score}</strong>
+              <strong>Puntuación: {score}</strong>
             </p>
             <p className="text-2xl mb-6 text-white drop-shadow-lg">
-              <strong>High Score: {highScore}</strong>
+              <strong>Puntuación máxima: {highScore}</strong>
             </p>
             <button
               onClick={resetGame}
               className="px-8 py-3 bg-red-700 hover:bg-red-800 rounded-lg text-xl font-semibold text-white border-2 border-red-900 shadow-lg transform hover:scale-105 hover:shadow-2xl transition duration-300 ease-in-out"
             >
-              <strong>Play Again</strong>
+              <strong>Jugar de nuevo</strong>
             </button>
           </div>
         )}
       </div>
       <div className="mt-8 text-center text-red-500">
         <p className="text-3xl font-bold mb-2 drop-shadow-lg">
-          <strong>Score: {score}</strong>
+          <strong>Puntuación: {score}</strong>
         </p>
         <p className="text-2xl mb-4 drop-shadow-lg">
-          <strong>High Score: {highScore}</strong>
+          <strong>Puntuación máxima: {highScore}</strong>
         </p>
         <p className="text-lg opacity-90 text-red-300 drop-shadow-lg">
-          <strong>Click or press SPACE to throw knives</strong>
+          <strong>Haz click o presiona espacio para lanzar los cuchillos</strong>
         </p>
       </div>
     </div>
