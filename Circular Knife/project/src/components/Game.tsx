@@ -14,7 +14,7 @@ const INITIAL_ROTATION_SPEED = 0.01;
 const SPEED_INCREMENT = 0.0075; // Slower increment for difficulty
 const THROW_SPEED = 20;
 const OUTER_RING_WIDTH = 40; // Width of the outer ring where knives can stick
-const STICK_OFFSET = 55;    // Distance from the outer edge where knives will stick
+const STICK_OFFSET = 70;    // Distance from the outer edge where knives will stick
 
 export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
