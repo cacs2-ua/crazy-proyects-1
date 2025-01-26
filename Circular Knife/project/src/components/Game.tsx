@@ -3,6 +3,9 @@ import { Target, Knife } from '../types/game';
 import { useGameLoop } from '../hooks/useGameLoop';
 import { drawTarget, drawKnife, checkCollision } from '../utils/gameUtils';
 
+// Import the center image (ensure you have the correct path)
+import centerImageSrc from '../assets/center-image.png';
+
 const CANVAS_SIZE = 800;
 const TARGET_RADIUS = 180;
 const KNIFE_HEIGHT = 50;
@@ -15,12 +18,25 @@ const STICK_OFFSET = -55;    // Distance from the outer edge where knives will s
 
 export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [highScore, setHighScore] = useState(() => {
     const saved = localStorage.getItem('knifeHitHighScore');
     return saved ? parseInt(saved) : 0;
   });
+
+  // Store the loaded image in a ref so we can draw it once it's ready
+  const centerImgRef = useRef<HTMLImageElement | null>(null);
+
+  // Load the center image once in a useEffect
+  useEffect(() => {
+    const img = new Image();
+    img.src = centerImageSrc;
+    img.onload = () => {
+      centerImgRef.current = img;
+    };
+  }, []);
 
   const gameState = useRef({
     target: {
@@ -69,24 +85,22 @@ export default function Game() {
   const updateGame = (ctx: CanvasRenderingContext2D) => {
     const { target, knives, throwingKnife } = gameState.current;
 
-    // ---- CHANGED: Dark, bloody gradient for background
+    // Dark, bloody gradient for background
     const bgGradient = ctx.createLinearGradient(0, 0, 0, CANVAS_SIZE);
-    bgGradient.addColorStop(0, '#0d0d0d');      // near-black
-    bgGradient.addColorStop(1, '#330000');      // deep red/burgundy
+    bgGradient.addColorStop(0, '#0d0d0d'); // near-black
+    bgGradient.addColorStop(1, '#330000'); // deep red/burgundy
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
     // Update target rotation
     target.rotation += target.rotationSpeed;
 
-    // Draw target (bloody style in gameUtils)
+    // Draw target
     drawTarget(ctx, target);
 
     // Update and draw stuck knives
     knives.forEach((knife) => {
-      // Position knives at the desired STICK_DISTANCE inside the outer edge
       const STICK_DISTANCE = target.radius - STICK_OFFSET;
-
       const knifeX =
         target.x +
         STICK_DISTANCE * Math.cos(target.rotation + knife.stickPosition);
@@ -106,8 +120,8 @@ export default function Game() {
       throwingKnife.y -= THROW_SPEED;
 
       const distanceToCenter = Math.sqrt(
-        Math.pow(throwingKnife.x - target.x, 2) +
-          Math.pow(throwingKnife.y - target.y, 2)
+        Math.pow(throwingKnife.x - target.x, 2) + 
+        Math.pow(throwingKnife.y - target.y, 2)
       );
 
       const collisionMargin = STICK_OFFSET;
@@ -118,14 +132,14 @@ export default function Game() {
         distanceToCenter <= outerRingDistance &&
         distanceToCenter >= innerRingDistance
       ) {
-        // Calculate angle of impact
         const impactAngle =
-          Math.atan2(throwingKnife.y - target.y, throwingKnife.x - target.x) -
-          target.rotation;
+          Math.atan2(
+            throwingKnife.y - target.y,
+            throwingKnife.x - target.x
+          ) - target.rotation;
 
-        // Check collision with other knives
+        // Check collision
         const collision = checkCollision(impactAngle, knives);
-
         if (collision) {
           setGameOver(true);
           const newHighScore = Math.max(score, highScore);
@@ -134,7 +148,7 @@ export default function Game() {
           return;
         }
 
-        // Stick knife to target
+        // Stick the knife
         const STICK_DISTANCE = target.radius - STICK_OFFSET;
         const newKnifeX =
           target.x + STICK_DISTANCE * Math.cos(target.rotation + impactAngle);
@@ -158,11 +172,10 @@ export default function Game() {
           stickPosition: 0
         };
 
-        // Increase score and difficulty
         setScore((prev) => prev + 1);
         target.rotationSpeed += SPEED_INCREMENT;
       } else if (distanceToCenter < innerRingDistance || throwingKnife.y < 0) {
-        // Knife missed the outer ring or went off screen
+        // Missed the outer ring or went off screen
         setGameOver(true);
         const newHighScore = Math.max(score, highScore);
         setHighScore(newHighScore);
@@ -173,6 +186,20 @@ export default function Game() {
 
     // Draw throwing knife
     drawKnife(ctx, throwingKnife);
+
+    // Draw center image if loaded
+    const centerImg = centerImgRef.current;
+    if (centerImg && centerImg.complete) {
+      const imgWidth = 100;  // Adjust size as needed
+      const imgHeight = 100; // Adjust size as needed
+      ctx.drawImage(
+        centerImg,
+        target.x - imgWidth / 2,
+        target.y - imgHeight / 2,
+        imgWidth,
+        imgHeight
+      );
+    }
   };
 
   useGameLoop(canvasRef, updateGame);
@@ -205,13 +232,13 @@ export default function Game() {
         {gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm animate-fade-in">
             <h2 className="text-6xl font-bold mb-6 text-red-600 drop-shadow-lg animate-pulse">
-            <strong>Game Over!</strong>
+              <strong>Game Over!</strong>
             </h2>
             <p className="text-2xl mb-2 text-white drop-shadow-lg">
-            <strong>Score: {score}</strong>
+              <strong>Score: {score}</strong>
             </p>
             <p className="text-2xl mb-6 text-white drop-shadow-lg">
-            <strong>High Score: {highScore}</strong>
+              <strong>High Score: {highScore}</strong>
             </p>
             <button
               onClick={resetGame}
@@ -227,10 +254,10 @@ export default function Game() {
           <strong>Score: {score}</strong>
         </p>
         <p className="text-2xl mb-4 drop-shadow-lg">
-        <strong>High Score: {highScore}</strong>
+          <strong>High Score: {highScore}</strong>
         </p>
         <p className="text-lg opacity-90 text-red-300 drop-shadow-lg">
-        <strong>Click or press SPACE to throw knives</strong>
+          <strong>Click or press SPACE to throw knives</strong>
         </p>
       </div>
     </div>
