@@ -133,7 +133,7 @@ export function drawKnife(ctx: CanvasRenderingContext2D, knife: Knife) {
 
 // Decreased collision angle for tighter placement
 export function checkCollision(newKnifeAngle: number, stuckKnives: Knife[]): boolean {
-  const collisionAngle = Math.PI / 48; // 3.75 degrees
+  const collisionAngle = Math.PI / 40; // 3.75 degrees
   return stuckKnives.some(knife => {
     const angleDiff = Math.abs(newKnifeAngle - (knife.stickPosition || 0)) % (Math.PI * 2);
     return angleDiff < collisionAngle || angleDiff > (Math.PI * 2 - collisionAngle);

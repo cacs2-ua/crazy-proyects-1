@@ -8,7 +8,7 @@ const TARGET_RADIUS = 180;
 const KNIFE_HEIGHT = 50;
 const KNIFE_WIDTH = 8;
 const INITIAL_ROTATION_SPEED = 0.01;
-const SPEED_INCREMENT = 0.0075;  // Slower increment for difficulty
+const SPEED_INCREMENT = 0.0075; // Slower increment for difficulty
 const THROW_SPEED = 20;
 const OUTER_RING_WIDTH = 40; // Width of the outer ring where knives can stick
 const STICK_OFFSET = -55;    // Distance from the outer edge where knives will stick
@@ -203,26 +203,34 @@ export default function Game() {
           onClick={() => (!gameOver ? throwKnife() : resetGame())}
         />
         {gameOver && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm">
-            <h2 className="text-6xl font-bold mb-6 text-red-600 drop-shadow-lg">
-              Game Over!
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm animate-fade-in">
+            <h2 className="text-6xl font-bold mb-6 text-red-600 drop-shadow-lg animate-pulse">
+            <strong>Game Over!</strong>
             </h2>
-            <p className="text-2xl mb-2">Score: {score}</p>
-            <p className="text-2xl mb-6">High Score: {highScore}</p>
+            <p className="text-2xl mb-2 text-white drop-shadow-lg">
+            <strong>Score: {score}</strong>
+            </p>
+            <p className="text-2xl mb-6 text-white drop-shadow-lg">
+            <strong>High Score: {highScore}</strong>
+            </p>
             <button
               onClick={resetGame}
-              className="px-8 py-3 bg-red-700 hover:bg-red-800 rounded-lg text-xl font-semibold transition-all transform hover:scale-105 hover:shadow-lg"
+              className="px-8 py-3 bg-red-700 hover:bg-red-800 rounded-lg text-xl font-semibold text-white border-2 border-red-900 shadow-lg transform hover:scale-105 hover:shadow-2xl transition duration-300 ease-in-out"
             >
-              Play Again
+              <strong>Play Again</strong>
             </button>
           </div>
         )}
       </div>
-      <div className="mt-8 text-center">
-        <p className="text-3xl font-bold mb-2">Score: {score}</p>
-        <p className="text-2xl mb-4">High Score: {highScore}</p>
-        <p className="text-lg opacity-90">
-          Click or press SPACE to throw knives
+      <div className="mt-8 text-center text-red-500">
+        <p className="text-3xl font-bold mb-2 drop-shadow-lg">
+          <strong>Score: {score}</strong>
+        </p>
+        <p className="text-2xl mb-4 drop-shadow-lg">
+        <strong>High Score: {highScore}</strong>
+        </p>
+        <p className="text-lg opacity-90 text-red-300 drop-shadow-lg">
+        <strong>Click or press SPACE to throw knives</strong>
         </p>
       </div>
     </div>
