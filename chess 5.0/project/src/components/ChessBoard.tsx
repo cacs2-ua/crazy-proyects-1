@@ -12,7 +12,6 @@ const ChessBoard: React.FC = () => {
   const [promotionPosition, setPromotionPosition] = useState<Position | null>(null);
 
   useEffect(() => {
-    // Check if either king is in check
     const whiteInCheck = isKingInCheck(board, 'white');
     const blackInCheck = isKingInCheck(board, 'black');
     
@@ -20,7 +19,6 @@ const ChessBoard: React.FC = () => {
       const checkedColor = whiteInCheck ? 'white' : 'black';
       setIsInCheck(checkedColor);
       
-      // Check for checkmate
       if (!hasValidMoves(board, checkedColor)) {
         setWinner(checkedColor === 'white' ? 'black' : 'white');
       }
